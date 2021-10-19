@@ -11,7 +11,7 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+  font-family:"lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
 }
 
 .clearfix {
@@ -28,6 +28,22 @@ body,
   }
 }
 
+a{
+  &:link {
+    color: #2c7fa5;
+  }
+  &:visited {
+    color:#2a53af;
+  }
+  &:hover {
+    color: #6f69c0;
+  }
+  &:active {
+    color: #4cceba;
+  }
+}
+
+
 /*css主要部分的样式*/
 /*定义滚动条宽高及背景，宽高分别对应横竖滚动条的尺寸*/
 
@@ -38,7 +54,7 @@ body,
   
   /*定义滚动条的轨道颜色、内阴影及圆角*/
   ::-webkit-scrollbar-track{
-  -webkit-box-shadow: 0 0 6px rgba(96, 154, 216, 0.472);
+  box-shadow: 0 0 6px rgba(96, 154, 216, 0.472);
   border-radius: 3px;
   }
   

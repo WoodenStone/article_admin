@@ -124,16 +124,31 @@
           v-if="!commentList.length"
           description="您还没有收到评论或回复噢"
         ></el-empty>
-        <ul>
+        <ul class="comment-pane">
           <li
             v-for="(item, index) in commentList"
             :key="index"
             style="list-style: none"
+            class="comment-item"
           >
             <el-container>
-              <div>{{ item.publisher_name }}</div>
+              <router-link
+                style="text-decoration:none"
+                :to="{
+                  path: '/user/visitor',
+                  query: { author: item.publisher_name }
+                }"
+                >{{ item.publisher_name }}</router-link
+              >
               &nbsp;在 &nbsp;
-              <div>{{ item.title }}</div>
+              <router-link
+                style="text-decoration:none"
+                :to="{
+                  path: '/table/detail',
+                  query: { id: item.article_commented_id, isEdit: false }
+                }"
+                >{{ item.title }}</router-link
+              >
               &nbsp;中
               <div v-if="!item.is_reply">评论</div>
               <div v-if="item.is_reply">回复</div>
@@ -416,5 +431,17 @@ export default {
 }
 .comment-content {
   margin: 10px 0 10px 20px;
+}
+.comment-pane {
+  cursor: default;
+  a {
+    font-style: bold;
+  }
+  .comment-item {
+    border-bottom: 2px solid #e4e7ed;
+    margin-bottom: 20px;
+    box-shadow: 0px 10px 10px -15px #acaeb1;
+    border-radius: 10px;
+  }
 }
 </style>

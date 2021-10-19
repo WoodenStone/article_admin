@@ -126,7 +126,7 @@ export default {
   created () {
     if (!this.personal) {
       // this.getAllArticle()
-      console.log(this.articleLists[0], '列表')
+      // console.log(this.articleLists[0], '列表')
       this.artilces = this.articleLists
     } else {
       this.getPersonalArticle()

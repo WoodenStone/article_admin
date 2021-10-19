@@ -10,12 +10,17 @@
       <el-input placeholder="站内信标题" v-model="message.title"> </el-input>
     </el-form-item>
     <el-form-item label="收件人" prop="consignee_name">
-      <el-input
-        placeholder="收件人用户名"
+      <el-autocomplete
+        :maxlength="15"
         v-model="message.consignee_name"
+        :fetch-suggestions="querySearchAsync"
+        @select="handleSelect"
+        :trigger-on-focus="false"
+        suffix-icon="el-icon-search"
+        placeholder="收件人用户名"
         @input="onInput()"
       >
-      </el-input>
+      </el-autocomplete>
     </el-form-item>
     <el-form-item label="内容" prop="content">
       <el-input
@@ -94,7 +99,6 @@ export default {
       handler (value) {
         // 如果直接写 = 赋值的话，在"回复-重置-收件箱"的连续操作中，
         // 收件箱中的内容会被置空
-        // 猜测理由：浅拷贝
         this.message = Object.assign({}, value)
         if (Object.keys(value).length > 0) {
           this.message.consignee_name = value.addresser_name
@@ -181,6 +185,37 @@ export default {
           return false
         }
       })
+    },
+    // 收件人用户名提示
+    querySearchAsync (query, callback) {
+      let list = [{}]
+      const value = { q: query }
+      this.$http.post('searchName', value).then((res, err) => {
+        if (!err) {
+          if (res.data.length > 0) {
+            for (const i of res.data) {
+              i.value = i.user_name
+            }
+            list = res.data
+          } else {
+            list = [{ value: '暂无结果' }]
+          }
+          callback(list)
+        } else {
+          console.log('err', err)
+        }
+      })
+    },
+    handleSelect (item) {
+      //   console.log(item)
+      /* if (item.id > 0) {
+        this.$router.push({
+          path: '/table/detail',
+          query: { id: item.id, isEdit: false }
+        })
+      } */
+      this.message.consignee_name = item.user_name
+      console.log(item)
     },
     // 强制刷新输入内容
     onInput () {

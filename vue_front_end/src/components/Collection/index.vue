@@ -2,7 +2,7 @@
  * @author: WoodenStone
  * @lastEditors: WoodenStone
  * @Date: 2021-10-17 16:50:26
- * @LastEditTime: 2021-10-18 15:41:13
+ * @LastEditTime: 2021-10-19 19:15:13
 -->
 <template>
   <el-dialog
@@ -95,6 +95,11 @@ export default {
               message: '操作成功！可到 个人中心-我的收藏 中查看',
               duration: 2000
             })
+            if (value.cid.length === 0) {
+              this.$emit('changeFavorStatus', false)
+            } else {
+              this.$emit('changeFavorStatus', true)
+            }
             this.$emit('close')
           } else {
             this.$message({

@@ -192,6 +192,18 @@ app.post('/api/search', (req, resp) => {
     )
 })
 
+// 用户名提示
+app.post('/api/searchName', (req, resp) => {
+    const params = req.body;
+    const sql = `select user_id, user_name from user_info
+    where user_name like "%${params.q}%";`
+    db(sql).then(
+        res => {
+            resp.send(res);
+        }
+    )
+})
+
 // 用户登录
 app.post('/api/login', (req, resp) => {
     const params = req.body;
@@ -349,7 +361,7 @@ app.get('/api/thumbupStatus', (req, resp) => {
 // 获取用户对某篇文章的收藏状态
 app.get('/api/favoriteStatus', (req, resp) => {
     const sql = `select * from article_favorite
-    where user_id = ${req.query.userID} and id = ${req.query.articleID};`
+    where user_id = ${req.query.userID} and id = ${req.query.articleID} and favorite_status = 1;`
     db(sql).then(res => {
         const result = JSON.parse(JSON.stringify(res))
         resp.send(result);
@@ -764,6 +776,7 @@ app.post('/api/newCollection', (req, resp) => {
     const params = req.body;
     if (params.cname === "默认收藏") {
         resp.sendStatus(403);
+        return;
     }
     const sql = `insert into collection(user_id, collection_name, collection_description) 
     values(${params.uid}, "${params.cname}","${params.cdes}");`
@@ -775,6 +788,27 @@ app.post('/api/newCollection', (req, resp) => {
         }
     })
 })
+
+// 修改收藏夹信息
+app.post('/api/collectionInfo', (req, resp) => {
+    const params = req.body;
+    const sql = `update collection set collection_name="${params.name}", collection_description = "${params.description}"
+    where collection_id = ${params.cid};`
+    console.log('改了')
+    db(sql).then(res => {
+        resp.end()
+    })
+})
+
+// 删除收藏夹
+app.delete('/api/collection', (req, resp) => {
+    const cid  = req.body.cid;
+    const sql = `delete from collection where collection_id = ${cid};`
+    db(sql).then(res => {
+        resp.end()
+    })
+})
+
 
 // 查找某用户将某篇文章收藏于哪些收藏夹
 app.get('/api/collectionStatus', (req, resp) => {
@@ -824,7 +858,7 @@ app.post('/api/articleFavorite', (req, resp) => {
 
 })
 
-
+// 删除某条站内信
 app.delete('/api/message', (req, resp) => {
     const msgId = req.body.msgId;
     const sql = `delete from direct_message where message_id = ${msgId};`

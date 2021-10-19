@@ -47,7 +47,7 @@
       <el-button class="goback" size="small" @click="handleBack"
         >返回列表</el-button
       >
-      <el-button class="goback" size="small" @click="handleBack"
+      <el-button class="goback" size="small" @click="handleCollection"
         >我的收藏</el-button
       >
     </el-container>
@@ -57,6 +57,7 @@
       :showDialog.sync="showDialog"
       :userInfo="userInfo"
       @close="showDialog = false"
+      @changeFavorStatus="changeFavorStatus"
       v-if="Object.keys(userInfo).length > 0"
     >
     </collection>
@@ -91,9 +92,21 @@ export default {
     this.fetchStatus()
     this.getComments()
   },
+  watch: {
+    favorite_status: {
+      handler (newVal) {
+        this.favorite_status = newVal
+        console.log(newVal)
+      },
+      immediate: true
+    }
+  },
   methods: {
     handleBack () {
       this.$router.push('/table/index')
+    },
+    handleCollection () {
+      this.$router.push('/user/collection')
     },
     fetchArticle () {
       const articleID = this.$route.query.id
@@ -125,10 +138,14 @@ export default {
       this.$http
         .get(`favoriteStatus?userID=${userID}&articleID=${articleID}`)
         .then((res, err) => {
-          if (res.data.length > 0) {
-            this.favorite_status = res.data[0].favorite_status
+          if (!err) {
+            if (res.data.length > 0) {
+              this.favorite_status = 1
+            } else {
+              this.favorite_status = 0
+            }
           } else {
-            this.favorite_status = 0
+            console.log(err)
           }
         })
     },
@@ -156,7 +173,7 @@ export default {
       })
     },
     // 变更收藏状态
-    favoriteChange () {
+    /* favoriteChange () {
       const value = {
         userID: this.userID,
         articleID: this.articleID,
@@ -172,6 +189,7 @@ export default {
                 message: '已添加至默认收藏夹',
                 duration: 1000
               })
+              this.fetchStatus()
             }
           } else {
             this.$message({
@@ -184,7 +202,7 @@ export default {
           console.log(err)
         }
       })
-    },
+    }, */
     getComments () {
       this.$http
         .get(`commentsOfOneArticle/${this.articleID}`)
@@ -202,6 +220,9 @@ export default {
     },
     collectionSet () {
       this.showDialog = !this.showDialog
+    },
+    changeFavorStatus (status) {
+      this.favorite_status = status === true ? 1 : 0
     }
   }
 }

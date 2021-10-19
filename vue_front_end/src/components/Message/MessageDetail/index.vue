@@ -13,7 +13,7 @@
     style="height: 100%"
   >
     <div class="message-main">
-      <h4>{{ this.messageItem.title }}</h4>
+      <h3>{{ this.messageItem.title }}</h3>
       <div v-if="isReceived">
         发件人：
         <strong>{{ this.messageItem.addresser_name }}</strong>
