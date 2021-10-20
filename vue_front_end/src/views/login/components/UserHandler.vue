@@ -1,5 +1,8 @@
 <template>
   <div class="login-container">
+    <div class="welcome-box">
+      <h1>Welcome!</h1>
+    </div>
     <div class="login-box">
       <el-form
         ref="loginForm"
@@ -7,21 +10,23 @@
         status-icon
         :rules="rules"
         label-width="100px"
-        class="loginForm"
+        class="login-form"
       >
         <div class="title-container">
-          <h3 class="title" v-if="this.isRegistered">用户登录</h3>
-          <h3 class="title2" v-if="!this.isRegistered">用户注册</h3>
+          <h2 class="title" v-if="this.isRegistered">Sign In</h2>
+          <h2 class="title2" v-if="!this.isRegistered">Sign Up</h2>
         </div>
-        <el-form-item label="用户名" prop="username">
+        <el-form-item prop="username">
           <el-input
+            prefix-icon="el-icon-user"
             ref="username"
             v-model="loginForm.username"
             autocomplete="off"
           />
         </el-form-item>
-        <el-form-item label="密码" prop="password">
+        <el-form-item prop="password">
           <el-input
+            prefix-icon="el-icon-box"
             ref="password"
             v-model="loginForm.password"
             type="password"
@@ -39,20 +44,22 @@
             >提交</el-button
           >
           <el-button @click="resetForm">重置</el-button>
-          <el-button
-            type="text"
-            @click="gotoRegister"
-            size="mini"
-            v-if="this.isRegistered"
-            >还未注册？去注册</el-button
-          >
-          <el-button
-            type="text"
-            @click="gotoLogin"
-            size="mini"
-            v-if="!this.isRegistered"
-            >已注册，直接登录</el-button
-          >
+          <div class="reg-or-log">
+            <el-button
+              type="text"
+              @click="gotoRegister"
+              size="mini"
+              v-if="this.isRegistered"
+              >Register NOW!</el-button
+            >
+            <el-button
+              type="text"
+              @click="gotoLogin"
+              size="mini"
+              v-if="!this.isRegistered"
+              >Login NOW!</el-button
+            >
+          </div>
         </div>
       </el-form>
     </div>
@@ -60,6 +67,7 @@
 </template>
 
 <script>
+import bgImg from '@/assets/bg.jpg'
 export default {
   name: 'UserHandler',
   props: {
@@ -70,6 +78,7 @@ export default {
   },
   data () {
     return {
+      bgImg: bgImg,
       isRegistered: this.registered,
       loginForm: {
         username: '',
@@ -196,72 +205,70 @@ export default {
 }
 </script>
 
-<style lang="less">
-/* cover element-ui css */
+<style lang="less" scoped>
 .login-container {
-  .el-input {
-    display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
 
-    input {
-      background: transparent;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 12px 5px 12px 5px;
-      color: #000;
-    }
-  }
-
-  .el-form-item {
-    background: rgba(238, 238, 238, 0.1);
-    border-radius: 5px;
+  background: #4ac29a; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #bdfff3,
+    #4ac29a
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #bdfff3,
+    #4ac29a
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+.welcome-box {
+  width: 300px;
+  height: 350px;
+  background: hsla(214, 73%, 82%, 0.314);
+  border-radius: 10px 0 0 10px;
+  position: relative;
+  h1 {
+    font-size: 40px;
+    margin-left: 20px;
+    margin: 60px 0 0 20px;
+    color: rgba(255, 255, 255, 0.952);
+    text-shadow: 0px 2px 2px #6b6a6a;
   }
 }
-</style>
-
-<style lang="less" scoped>
-@bg: #20495a;
-@login-bg: #fff;
-.login-container {
-  height: 100%;
-  background: @bg;
-  .login-box {
-    background-color: @login-bg;
-    position: absolute;
-    overflow: hidden;
-    border-radius: 10px;
-    width: 450px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    .title-container {
-      position: relative;
-      .title,
-      .title2 {
-        font-size: 25px;
-        color: #3a5361;
-        margin: 0 auto 20px auto;
-        text-align: center;
-      }
-    }
-    .show-pwd {
-      position: absolute;
-      right: 10px;
-      top: 7px;
-      font-size: 16px;
-      color: black;
-      cursor: pointer;
-      user-select: none;
-    }
-    .login-button {
-      text-align: center;
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-end;
-      .el-button {
-        margin: 0 15px 0 20px;
-      }
+.login-box {
+  display: flex;
+  justify-content: center;
+  background: #fff;
+  width: 350px;
+  height: 350px;
+  border-radius: 0 10px 10px 0;
+}
+.title-container {
+  margin: 40px 100px;
+}
+.login-form {
+  padding: 0;
+  width: 300px;
+  /deep/ .el-form-item__content {
+    margin-left: 10px !important;
+  }
+  /deep/ .el-input__inner {
+    border: 0;
+    border-bottom: 1.5px solid rgba(154, 173, 183, 0.5);
+    &:focus {
+      border-bottom: 1.5px solid rgba(154, 173, 183, 0.8);
     }
   }
+}
+.login-button {
+  margin: 30px 60px;
+}
+.reg-or-log {
+  margin: 15px 70px;
+  float: right;
 }
 </style>

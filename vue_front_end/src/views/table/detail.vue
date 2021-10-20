@@ -5,7 +5,7 @@
     :v-model="articleDetail"
     name="article-detail"
   >
-    <h2 prop="title">
+    <h2 prop="title" class="title-typing">
       {{ articleDetail.title }}
     </h2>
     <el-container class="article-info" direction="vertical">
@@ -25,7 +25,7 @@
         </span>
       </div>
     </el-container>
-    <el-container class="content-detail" prop="content" name="content">
+    <el-container class="content-detail  fade-in" prop="content" name="content">
       <pre>{{ articleDetail.content }}</pre>
     </el-container>
 
@@ -51,7 +51,7 @@
         >我的收藏</el-button
       >
     </el-container>
-    <Comment :data-list="dataList"></Comment>
+    <Comment :data-list="dataList" class="fade-in"></Comment>
 
     <collection
       :showDialog.sync="showDialog"

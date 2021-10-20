@@ -1,5 +1,5 @@
 <template>
-  <div class="message-container">
+  <div class="message-container fade-in">
     <el-tabs v-model="activeName" :stretch="true">
       <el-tab-pane label="收件箱" name="receive-box" class="receive-box">
         <message-box-received

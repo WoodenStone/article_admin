@@ -1,5 +1,12 @@
+<!--
+ * @author: WoodenStone
+ * @lastEditors: WoodenStone
+ * @Date: 2021-10-16 13:26:08
+ * @LastEditTime: 2021-10-20 16:07:41
+-->
 <template>
   <article-list
+    name="fade"
     :showAuthor="true"
     :showContent="true"
     :showHeader="true"

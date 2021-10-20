@@ -1,5 +1,5 @@
 <template>
-  <el-container class="user-admin" direction="vertical">
+  <el-container class="user-admin fade-in" direction="vertical">
     <el-container class="user-info">
       <el-avatar
         v-if="avatarUrl"

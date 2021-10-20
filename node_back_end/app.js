@@ -834,7 +834,7 @@ app.post('/api/articleFavorite', (req, resp) => {
         }
     })
     for (const id of cid) {
-        console.log(id)
+        // console.log(id)
         const sql_find = `select * from article_favorite
         where user_id = ${uid} and collection_id = ${id} and id = ${aid};`
         const sql_update = `update article_favorite set favorite_status = 1

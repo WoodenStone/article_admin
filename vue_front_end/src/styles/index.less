@@ -12,6 +12,7 @@ body,
   margin: 0;
   padding: 0;
   font-family:"lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+
 }
 
 .clearfix {
@@ -74,4 +75,50 @@ a{
   /*定义右下角汇合处的样式*/
   ::-webkit-scrollbar-corner {
   display: none;
+  }
+
+  /* animation */
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    40% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @-webkit-keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    40% {
+      clip-path: circle(0);
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .fade-in {
+    animation: fade-in;
+    animation-duration: 0.5s linear;
+    -webkit-animation: fade-in 0.5s ease-in; /*针对webkit内核*/
+  }
+
+  @keyframes typing { from { width: 0; opacity: 0;} 
+                      50% { opacity: 1;}}
+
+  .title-typing {
+    width: 30em; 
+    overflow: hidden; 
+    white-space: nowrap; 
+    animation: typing 20s steps(30, end), /* # of steps = # of chars */
+	           blink-caret .5s step-end infinite alternate;
+    -webkit-animation: typing 1.5s steps(30,end) forwards;
+    text-align: center;
+    
   }

@@ -9,7 +9,7 @@
         :span="11"
         v-for="(collection, index) in collectionList"
         :key="index"
-        class="collection-col"
+        class="collection-col fade-in"
       >
         <el-card class="box-card" shadow="always">
           <div

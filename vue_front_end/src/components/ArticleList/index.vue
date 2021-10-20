@@ -19,7 +19,7 @@
       </el-autocomplete>
     </el-container>
 
-    <div class="article-list-wrapper">
+    <div class="article-list-wrapper  fade-in">
       <el-table :data="articleLists" style="width: 100%">
         <el-table-column prop="title" label="标题" width="180">
         </el-table-column>
@@ -212,6 +212,7 @@ export default {
           // d.tagName = d.tagName.join(' | ')
           this.articles.push({ ...d, publishTime, updateTime })
         }
+        this.$message('已更新！')
       })
     },
     // 更新指定作者的文章列表
@@ -267,6 +268,9 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.article-list-wrapper {
+  transition: 0.5s;
+}
 /* 解决点击之后必须再次点击别处才能重置背景色的bug */
 /*鼠标点击后移开，恢复本身样式*/
 .button-update,
