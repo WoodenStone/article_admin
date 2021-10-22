@@ -11,6 +11,9 @@ let fs = require('fs')
 app.use(require('cors')())
 
 const { db } = require('./src/sql/db')
+const { FILE } = require('dns')
+
+app.use('/public', express.static('public'));
 
 // 获取请求体req.body
 app.use(express.json())
@@ -129,7 +132,7 @@ const findTag = async (tag) => {
 // 添加文章
 app.post('/api/addArticle', async (req, resp) => {
     const params = req.body;
-    const sql_insert = `insert into article(title, author_id, content, publish_time) values ("${params.title}", ${params.author_id},"${params.content}",NOW() );`
+    const sql_insert = `insert into article(title, author_id, content, rawcontent, publish_time) values ("${params.title}", ${params.author_id},"${params.content}", "${params.rawcontent}" ,NOW() );`
     // console.log(sql);
     const tagID = [];
     for (const tag of params.tagName) {
@@ -152,7 +155,8 @@ app.post('/api/addArticle', async (req, resp) => {
 // 标签的更新：先删除该文章所有标签，再插入新标签
 app.post('/api/updateArticle', async (req, resp) => {
     const params = req.body;
-    const sql_update = `update article set title = "${params.title}" , content="${params.content}" where id = ${params.id};`
+    console.log(params, '参数')
+    const sql_update = `update article set title = "${params.title}" , content="${params.content}", rawcontent="${params.rawcontent}" where id = ${params.id};`
     // 删除映射
     const sql_tag_delete = `delete from article_tag where article_id = ${params.id};`
     await db(sql_tag_delete);
@@ -181,7 +185,7 @@ app.post('/api/search', (req, resp) => {
     const sql = `select a.id, a.author_id, a.title, a.content, u.user_name from article a, user_info u
     where a.author_id = u.user_id
     and (
-    a.content like "%${params.q}%" or 
+    a.rawcontent like "%${params.q}%" or 
     a.title like "${params.q}" or
     u.user_name like "${params.q}"
     );`
@@ -191,6 +195,9 @@ app.post('/api/search', (req, resp) => {
         }
     )
 })
+
+
+
 
 // 用户名提示
 app.post('/api/searchName', (req, resp) => {
@@ -303,6 +310,20 @@ app.post('/api/uploadAvatar', upload.single('avatar'), (req, resp) => {
             resp.send('Unknown error.')
         }
     })
+})
+
+// 文章内图片上传
+const uploadImg = multer({
+    dest: 'public'
+})
+app.post('/api/imgUpload', uploadImg.single('image'),(req, resp) => {
+    // console.log(req, 'req');
+    let file = req.file
+    console.log(file.filename)
+    let rawSrc = 'public/' + file.filename;
+    let realSrc = 'public/' + file.originalname;
+    fs.renameSync(rawSrc, realSrc);
+    resp.send('http://127.0.0.1:3001/public/' + file.originalname)
 })
 
 // 由ID获取头像
@@ -864,6 +885,21 @@ app.delete('/api/message', (req, resp) => {
     const sql = `delete from direct_message where message_id = ${msgId};`
     db(sql).then(res => {
         resp.send(res)
+    })
+})
+
+app.get('/api/statistic', (req, resp) => {
+    // const d = req.query.date.split('+');
+    const day = req.query.date, week = req.query.week, uid = req.query.uid;
+    console.log(day,week,uid)
+    const sql = `select date(publish_time) as ptime, count(*) as cnt from article 
+    where author_id = ${uid}
+    AND unix_timestamp(publish_time) <= unix_timestamp("${day}")
+    group by date(publish_time);`
+    db(sql).then(res => {
+        let result = JSON.parse(JSON.stringify(res));
+        console.log(result)
+        resp.send(result)
     })
 })
 

@@ -20,11 +20,20 @@
       <tag-input v-model="article.tagName"></tag-input>
     </el-form-item>
     <el-form-item label="内容" prop="content">
+      <!--
       <el-input
         type="textarea"
         v-model="article.content"
         :autosize="{ minRows: 10, maxRows: 80 }"
       ></el-input>
+
+      <el-input type="textarea" v-model="article.content"> </el-input>-->
+      <mavon-editor
+        v-model="article.content"
+        ref="md"
+        name="img"
+        @imgAdd="imgAdd"
+      ></mavon-editor>
     </el-form-item>
     <el-form-item>
       <el-button
@@ -63,7 +72,8 @@ export default {
         author: '',
         content: '',
         tagName: [],
-        author_id: ''
+        author_id: '',
+        rawcontent: ''
       },
       articleRules: {
         title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
@@ -97,6 +107,12 @@ export default {
         }
       })
     },
+    // 去除markdown符号 用于模糊查询
+    articleFilter () {
+      const removeMd = require('remove-markdown')
+      this.article.rawcontent = removeMd(this.article.content)
+      // console.log(this.article.rawcontent, 'after')
+    },
     // 进行文章创建或更新，成功后跳转到详情页
     handleModify (formName) {
       this.$refs[formName].validate(valid => {
@@ -110,11 +126,13 @@ export default {
               duration: '2000'
             })
           } else {
+            this.articleFilter()
             if (!this.isEdit) {
-              // console.log(this.article, 'arti add')
+              console.log(this.article, 'arti add')
+              // this.submitAdd()
               this.submitAdd()
             } else {
-              // console.log(this.article, 'arti update')
+              console.log(this.article, 'arti update')
               this.submitUpdate()
             }
           }
@@ -129,6 +147,7 @@ export default {
     },
     // 更新某篇文章
     submitUpdate () {
+      console.log(this.article, '文章')
       this.$http.post('updateArticle', this.article).then((res, err) => {
         if (!err) {
           // console.log('success')
@@ -186,6 +205,22 @@ export default {
       setTimeout(() => {
         this.$router.push('/table/index')
       }, 2000)
+    },
+    // 在md中添加图片
+    imgAdd (pos, $file) {
+      // 第一步.将图片上传到服务器.
+      var formdata = new FormData()
+      formdata.append('image', $file)
+      this.$http({
+        url: 'imgUpload',
+        method: 'post',
+        data: formdata,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }).then(url => {
+        // 第二步.将返回的url替换到文本原位置![...](0) -> ![...](url)
+        // console.log(url)
+        this.$refs.md.$img2Url(pos, url.data)
+      })
     }
   }
 }

@@ -39,7 +39,7 @@ const constRoutes = [
     children: [
       {
         path: 'home',
-        name: '首页',
+        name: '主面板',
         component: () => import('@/views/home/index'),
         meta: { title: 'Home', icon: '' }
       }

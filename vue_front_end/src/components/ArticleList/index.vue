@@ -53,8 +53,9 @@
             </span>
           </template>
         </el-table-column>
+        <!--
         <el-table-column v-if="showContent" prop="content" label="预览">
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column fixed="right" label="操作" width="130">
           <template slot-scope="scope">
             <el-button @click="handleCheck(scope.row)" type="text" size="small"

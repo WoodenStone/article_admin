@@ -15,7 +15,7 @@
     >
       <el-menu-item index="/home">
         <i class="el-icon-s-grid" />
-        <span slot="title">主页</span>
+        <span slot="title">主面板</span>
       </el-menu-item>
       <el-menu-item index="/table">
         <i class="el-icon-collection" />

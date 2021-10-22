@@ -2,6 +2,11 @@
   <div class="login-container">
     <div class="welcome-box">
       <h1>Welcome!</h1>
+      <div class="welcome-note">
+        <span>✨发现新点子</span>
+        <span>🍻与同好交流</span>
+        <span>🎉就是现在！开启创作之旅🎉</span>
+      </div>
     </div>
     <div class="login-box">
       <el-form
@@ -213,16 +218,16 @@ export default {
   height: 100%;
   width: 100%;
 
-  background: #4ac29a; /* fallback for old browsers */
+  background: #134e5e; /* fallback for old browsers */
   background: -webkit-linear-gradient(
     to right,
-    #bdfff3,
-    #4ac29a
+    #71b280,
+    #134e5e
   ); /* Chrome 10-25, Safari 5.1-6 */
   background: linear-gradient(
     to right,
-    #bdfff3,
-    #4ac29a
+    #71b280,
+    #134e5e
   ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 .welcome-box {
@@ -231,12 +236,24 @@ export default {
   background: hsla(214, 73%, 82%, 0.314);
   border-radius: 10px 0 0 10px;
   position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
   h1 {
     font-size: 40px;
-    margin-left: 20px;
     margin: 60px 0 0 20px;
     color: rgba(255, 255, 255, 0.952);
     text-shadow: 0px 2px 2px #6b6a6a;
+  }
+  .welcome-note {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    span {
+      margin-top: 20px;
+      color: rgba(255, 255, 255, 0.863);
+      text-shadow: 0px 2px 2px #759177;
+    }
   }
 }
 .login-box {

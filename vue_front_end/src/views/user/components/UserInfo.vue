@@ -1,166 +1,174 @@
 <template>
-  <el-container class="user-admin fade-in" direction="vertical">
-    <el-container class="user-info">
-      <el-avatar
-        v-if="avatarUrl"
-        shape="square"
-        :size="200"
-        :src="avatarUrl"
-      ></el-avatar>
-      <el-avatar
-        v-else
-        :size="200"
-        shape="square"
-        icon="el-icon-user"
-      ></el-avatar>
-      <el-container direction="vertical">
-        <el-container class="userinfo-header">
-          <h3 style="padding-left: 15px">{{ this.username }}</h3>
-          <el-button
-            type="primary"
-            size="mini"
-            style="margin-left:15px"
-            v-if="isVisitor && !isFollowed"
-            @click="changeFollowStatus"
-            >关注</el-button
-          >
-          <el-button
-            size="mini"
-            style="margin-left:15px"
-            v-if="isVisitor && isFollowed"
-            @click="changeFollowStatus"
-            >已关注</el-button
-          >
-        </el-container>
-        <el-row
-          class="relationship"
-          :gutter="20"
-          type="flex"
-          justify="space-around"
+  <el-container class="user-admin fade-in">
+    <el-container class="user-info" direction="vertical">
+      <div class="user-avatar">
+        <el-avatar
+          v-if="avatarUrl"
+          shape="square"
+          :size="220"
+          :src="avatarUrl"
+        ></el-avatar>
+        <el-avatar
+          v-else
+          :size="220"
+          shape="square"
+          icon="el-icon-user"
+        ></el-avatar>
+      </div>
+      <h3 class="username">{{ this.username }}</h3>
+      <div class="follow-button">
+        <el-button
+          type="primary"
+          size="small"
+          plain
+          v-if="isVisitor && !isFollowed"
+          @click="changeFollowStatus"
+          >关注</el-button
         >
-          <el-col :span="15">
-            <el-card shadow="hover">
-              <div slot="header">
-                <span>被关注</span>
-              </div>
-              {{ this.followers }}
-            </el-card>
-          </el-col>
-          <el-col :span="15">
-            <el-card shadow="hover"
-              ><div slot="header">
-                <span>关注了</span>
-              </div>
-              {{ this.following }}</el-card
-            >
-          </el-col>
-        </el-row>
-      </el-container>
-    </el-container>
-    <div class="user-change-info" v-if="!this.isVisitor">
-      <el-button type="text" size="mini" @click="userinfoChange"
-        >修改个人信息</el-button
-      >
-    </div>
-
-    <el-tabs :tab-position="tabPosition" class="admin" v-if="!isVisitor">
-      <el-tab-pane label="我的文章">
-        <article-list
-          :showAuthor="false"
-          :showContent="false"
-          :showHeader="false"
-          :personal="true"
-          :personalID="this.personalID"
-          :articleLists="this.articles"
-          v-if="articles.length > 0"
-        ></article-list>
-      </el-tab-pane>
-      <el-tab-pane label="关注我的">
-        <el-table :data="followersTable" border style="width: 100%">
-          <el-table-column prop="user_name" label="用户名"> </el-table-column>
-          <el-table-column prop="userindex" label="TA的主页">
-            <template slot-scope="scope">
-              <router-link
-                style="text-decoration:none"
-                :to="{
-                  path: '/user/visitor',
-                  query: { author: scope.row.user_name }
-                }"
-                >点击查看✌</router-link
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-tab-pane>
-      <el-tab-pane label="我关注的">
-        <el-table :data="followingTable" border style="width: 100%">
-          <el-table-column prop="user_name" label="用户名"> </el-table-column>
-          <el-table-column prop="userindex" label="TA的主页">
-            <template slot-scope="scope">
-              <router-link
-                style="text-decoration:none"
-                :to="{
-                  path: '/user/visitor',
-                  query: { author: scope.row.user_name }
-                }"
-                >点击查看✌</router-link
-              >
-            </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="操作" width="100">
-            <template slot-scope="scope">
-              <el-button
-                @click="changeFollowStatus(scope.row.user_id, true)"
-                type="text"
-                size="small"
-                >取关</el-button
-              >
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-tab-pane>
-      <el-tab-pane label="评论与回复">
-        <el-empty
-          v-if="!commentList.length"
-          description="您还没有收到评论或回复噢"
-        ></el-empty>
-        <ul class="comment-pane">
-          <li
-            v-for="(item, index) in commentList"
-            :key="index"
-            style="list-style: none"
-            class="comment-item"
+        <el-button
+          size="small"
+          v-if="isVisitor && isFollowed"
+          @click="changeFollowStatus"
+          plain
+          >已关注</el-button
+        >
+      </div>
+      <el-row class="relationship" :gutter="10" type="flex">
+        <el-col :span="10">
+          <el-card shadow="hover">
+            <div slot="header">
+              <span>被关注</span>
+            </div>
+            {{ this.followers }}
+          </el-card>
+        </el-col>
+        <el-col :span="10">
+          <el-card shadow="hover"
+            ><div slot="header">
+              <span>关注了</span>
+            </div>
+            {{ this.following }}</el-card
           >
-            <el-container>
-              <router-link
-                style="text-decoration:none"
-                :to="{
-                  path: '/user/visitor',
-                  query: { author: item.publisher_name }
-                }"
-                >{{ item.publisher_name }}</router-link
-              >
-              &nbsp;在 &nbsp;
-              <router-link
-                style="text-decoration:none"
-                :to="{
-                  path: '/table/detail',
-                  query: { id: item.article_commented_id, isEdit: false }
-                }"
-                >{{ item.title }}</router-link
-              >
-              &nbsp;中
-              <div v-if="!item.is_reply">评论</div>
-              <div v-if="item.is_reply">回复</div>
-              ：
-            </el-container>
-            <el-container class="comment-content">{{
-              item.content
-            }}</el-container>
-          </li>
-        </ul>
-      </el-tab-pane>
-    </el-tabs>
+        </el-col>
+      </el-row>
+      <div class="user-change-info" v-if="!this.isVisitor">
+        <el-button type="text" size="mini" @click="userinfoChange"
+          >修改个人信息</el-button
+        >
+      </div>
+    </el-container>
+
+    <div class="tabs">
+      <el-tabs :tab-position="tabPosition" class="admin">
+        <el-tab-pane label="我的文章" v-if="!isVisitor">
+          <article-list
+            :showAuthor="false"
+            :showContent="false"
+            :showHeader="false"
+            :personal="true"
+            :personalID="this.personalID"
+            :articleLists="this.articles"
+            v-if="articles.length > 0"
+          ></article-list>
+        </el-tab-pane>
+        <el-tab-pane label="TA的文章" v-if="isVisitor">
+          <article-list
+            :showAuthor="false"
+            :showContent="false"
+            :showHeader="false"
+            :personal="false"
+            :articleLists="this.articlesV"
+            v-if="articles.length > 0"
+          ></article-list>
+        </el-tab-pane>
+
+        <el-tab-pane label="关注我的" v-if="!isVisitor">
+          <el-table :data="followersTable" border style="width: 100%">
+            <el-table-column prop="user_name" label="用户名"> </el-table-column>
+            <el-table-column prop="userindex" label="TA的主页">
+              <template slot-scope="scope">
+                <router-link
+                  style="text-decoration:none"
+                  :to="{
+                    path: '/user/visitor',
+                    query: { author: scope.row.user_name }
+                  }"
+                  >点击查看✌</router-link
+                >
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="我关注的" v-if="!isVisitor">
+          <el-table :data="followingTable" border style="width: 100%">
+            <el-table-column prop="user_name" label="用户名"> </el-table-column>
+            <el-table-column prop="userindex" label="TA的主页">
+              <template slot-scope="scope">
+                <router-link
+                  style="text-decoration:none"
+                  :to="{
+                    path: '/user/visitor',
+                    query: { author: scope.row.user_name }
+                  }"
+                  >点击查看✌</router-link
+                >
+              </template>
+            </el-table-column>
+            <el-table-column fixed="right" label="操作" width="100">
+              <template slot-scope="scope">
+                <el-button
+                  @click="changeFollowStatus(scope.row.user_id, true)"
+                  type="text"
+                  size="small"
+                  >取关</el-button
+                >
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="评论与回复" v-if="!isVisitor">
+          <el-empty
+            v-if="!commentList.length"
+            description="您还没有收到评论或回复噢"
+          ></el-empty>
+          <ul class="comment-pane">
+            <li
+              v-for="(item, index) in commentList"
+              :key="index"
+              style="list-style: none"
+              class="comment-item"
+            >
+              <el-container>
+                <router-link
+                  style="text-decoration:none"
+                  :to="{
+                    path: '/user/visitor',
+                    query: { author: item.publisher_name }
+                  }"
+                  >{{ item.publisher_name }}</router-link
+                >
+                &nbsp;在 &nbsp;
+                <router-link
+                  style="text-decoration:none"
+                  :to="{
+                    path: '/table/detail',
+                    query: { id: item.article_commented_id, isEdit: false }
+                  }"
+                  >{{ item.title }}</router-link
+                >
+                &nbsp;中
+                <div v-if="!item.is_reply">评论</div>
+                <div v-if="item.is_reply">回复</div>
+                ：
+              </el-container>
+              <el-container class="comment-content">{{
+                item.content
+              }}</el-container>
+            </li>
+          </ul>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
   </el-container>
 </template>
 
@@ -188,7 +196,7 @@ export default {
       avatarUrl: '',
       followers: '',
       following: '',
-      tabPosition: 'left',
+      tabPosition: 'top',
       followersTable: [
         {
           user_name: '',
@@ -203,7 +211,8 @@ export default {
       ],
       articleList: [],
       commentList: [],
-      articles: []
+      articles: [],
+      articlesV: []
     }
   },
   created () {
@@ -245,6 +254,7 @@ export default {
         this.username = this.$route.query.author
         this.getAvatarByName()
         this.getUserIdByName()
+        this.getVisitorArticle()
       }
     },
     // 由ID获取头像
@@ -407,6 +417,17 @@ export default {
         }
       })
     },
+    async getVisitorArticle () {
+      await this.getUserIdByName()
+      this.articlesV = []
+      await this.$http.get(`personalArticle?uid=${this.userID}`).then(res => {
+        for (const d of res.data) {
+          const publishTime = dateFormat(d.publish_time)
+          const updateTime = dateFormat(d.update_time)
+          this.articlesV.push({ ...d, publishTime, updateTime })
+        }
+      })
+    },
     update () {
       this.reload()
     }
@@ -415,22 +436,41 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.user-change-info {
-  width: 200px;
-  padding-left: 70px;
+.user-avatar {
+  display: flex;
+  justify-content: center;
+  height: 220px;
+}
+.username {
+  align-self: center;
+}
+.follow-button {
+  align-self: center;
+  margin: 0 0 20px 0;
+  /deep/ .el-button {
+    width: 100px;
+    border-radius: 10px;
+  }
 }
 .relationship {
-  padding-left: 20px;
-  width: 300px;
+  justify-content: center;
+  cursor: default;
+  margin: 0;
+  /deep/ .el-card {
+    background-color: rgba(194, 189, 189, 0.1);
+  }
+  /deep/ .el-card__header {
+    padding: 10px 0 10px 0;
+    text-align: center;
+  }
+  /deep/ .el-card__body {
+    padding: 0;
+    text-align: center;
+  }
 }
-.userinfo-header {
-  align-items: center;
-}
-.admin {
-  margin-top: 30px;
-}
-.comment-content {
-  margin: 10px 0 10px 20px;
+.user-change-info {
+  align-self: center;
+  padding-top: 15px;
 }
 .comment-pane {
   cursor: default;
@@ -442,6 +482,18 @@ export default {
     margin-bottom: 20px;
     box-shadow: 0px 10px 10px -15px #acaeb1;
     border-radius: 10px;
+    padding: 10px 0;
   }
+  .comment-content {
+    padding: 15px 0 0 10px;
+  }
+}
+.admin {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+}
+.tabs {
+  width: calc(100vw - 345px);
 }
 </style>

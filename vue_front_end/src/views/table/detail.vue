@@ -25,9 +25,21 @@
         </span>
       </div>
     </el-container>
+    <!--
     <el-container class="content-detail  fade-in" prop="content" name="content">
       <pre>{{ articleDetail.content }}</pre>
-    </el-container>
+    </el-container> -->
+
+    <mavon-editor
+      class="content-detail  fade-in"
+      prop="content"
+      name="content"
+      :toolbarsFlag="false"
+      :subfield="false"
+      defaultOpen="preview"
+      v-model="articleDetail.content"
+    >
+    </mavon-editor>
 
     <el-container class="action" name="action">
       <el-button
@@ -239,12 +251,13 @@ export default {
   margin: 15px 0;
 }
 .content-detail {
-  width: 100%;
+  width: 80%;
   padding: 20px;
-  margin: 10px 0;
+  margin: 10px 20px;
   cursor: text;
   background-color: #fff;
   box-shadow: 0 0 30px rgba(202, 196, 196, 0.5);
+  align-content: center;
 }
 .action {
   display: flex;

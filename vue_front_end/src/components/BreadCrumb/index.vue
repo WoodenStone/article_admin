@@ -1,6 +1,6 @@
 <template>
   <div class="example-container">
-    <el-breadcrumb separator="✈">
+    <el-breadcrumb separator="🚩">
       <el-breadcrumb-item
         v-for="(item, index) in breadList"
         :key="index"
@@ -16,6 +16,7 @@ export default {
   name: 'BreadCrumb',
   data () {
     return {
+      user_name: JSON.parse(window.localStorage.getItem('user')).user_name,
       breadList: []
     }
   },
@@ -30,6 +31,12 @@ export default {
     },
     getBreadcrumb () {
       const matched = this.$route.matched
+      if (
+        matched[1].name === '访客界面' &&
+        this.$route.query.author === this.user_name
+      ) {
+        this.$router.push('/user/index')
+      }
       this.breadList = matched
     }
   },

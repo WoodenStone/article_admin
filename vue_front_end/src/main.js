@@ -8,6 +8,10 @@ import './styles/index.less'
 import axios from 'axios'
 import { MessageBox } from 'element-ui'
 import './utils/dialog'
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+import 'remove-markdown'
+import * as echarts from 'echarts'
 Vue.config.productionTip = false
 
 Vue.prototype.$http = axios.create({
@@ -16,6 +20,10 @@ Vue.prototype.$http = axios.create({
 })
 
 Vue.prototype.$confirm = MessageBox.confirm
+
+Vue.prototype.$echarts = echarts
+
+Vue.use(mavonEditor)
 
 // 全局前置路由守卫
 router.beforeEach(async (to, from, next) => {
