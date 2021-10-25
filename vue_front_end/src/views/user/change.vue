@@ -137,34 +137,39 @@ export default {
           const tobeStored = this.prevStored
           tobeStored.user_name = this.userInfo.username
           tobeStored.user_pwd = this.userInfo.password
-          this.$http.post('userInfoChange', value).then((res, err) => {
-            if (!err) {
-              const changeResult = res.data.result
-              if (changeResult === 0) {
-                this.$message({
-                  message: '修改成功',
-                  type: 'success',
-                  duration: '2000'
-                })
-                // 更新localStorage存储的信息
-                this.$store.commit('setuserInfo', tobeStored)
-              } else if (changeResult === 2) {
-                this.$message({
-                  message: '该用户名已被占用',
-                  type: 'warning',
-                  duration: '2000'
-                })
+          this.$http
+            .post('userInfoChange', value)
+            .then((res, err) => {
+              if (!err) {
+                const changeResult = res.data.result
+                if (changeResult === 0) {
+                  this.$message({
+                    message: '修改成功',
+                    type: 'success',
+                    duration: '2000'
+                  })
+                  // 更新localStorage存储的信息
+                  this.$store.commit('setuserInfo', tobeStored)
+                } else if (changeResult === 2) {
+                  this.$message({
+                    message: '该用户名已被占用',
+                    type: 'warning',
+                    duration: '2000'
+                  })
+                } else {
+                  this.$message({
+                    message: '服务器未知错误，请稍后再试',
+                    type: 'error',
+                    duration: '2000'
+                  })
+                }
               } else {
-                this.$message({
-                  message: '服务器未知错误，请稍后再试',
-                  type: 'error',
-                  duration: '2000'
-                })
+                console.log(err)
               }
-            } else {
-              console.log(err)
-            }
-          })
+            })
+            .catch(e => {
+              console.log(e)
+            })
         } else {
           return false
         }
@@ -215,6 +220,9 @@ export default {
           } else {
             console.log(err)
           }
+        })
+        .catch(e => {
+          console.log(e)
         })
     },
     // 取消修改

@@ -1,6 +1,6 @@
 <template>
   <div class="example-container">
-    <el-breadcrumb separator="🚩">
+    <el-breadcrumb separator-class="iconfont icon-ar-ic_locate_line">
       <el-breadcrumb-item
         v-for="(item, index) in breadList"
         :key="index"

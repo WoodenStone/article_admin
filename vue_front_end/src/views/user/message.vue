@@ -84,17 +84,22 @@ export default {
     // 获取发件信息
     async getSentMessages () {
       const userID = JSON.parse(window.localStorage.getItem('user')).user_id
-      this.$http.get(`directMessageOut?userID=${userID}`).then((res, err) => {
-        if (!err) {
-          const value = res.data
-          value.forEach(item => {
-            item.delivery_time = dateFormat(item.delivery_time)
-          })
-          this.sendData = value.reverse()
-        } else {
-          console.log(err)
-        }
-      })
+      this.$http
+        .get(`directMessageOut?userID=${userID}`)
+        .then((res, err) => {
+          if (!err) {
+            const value = res.data
+            value.forEach(item => {
+              item.delivery_time = dateFormat(item.delivery_time)
+            })
+            this.sendData = value.reverse()
+          } else {
+            console.log(err)
+          }
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     closeDrawer (v) {
       this.drawerStatus = v
@@ -117,11 +122,16 @@ export default {
     },
     // 变更已读状态
     changeReadStatus (value) {
-      this.$http.post('messageReadStatus', value).then((res, err) => {
-        if (res.status === 200) {
-          value.read_status = 1
-        }
-      })
+      this.$http
+        .post('messageReadStatus', value)
+        .then((res, err) => {
+          if (res.status === 200) {
+            value.read_status = 1
+          }
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     // 跳转至写信界面
     writeBack (item) {
@@ -133,7 +143,7 @@ export default {
       // console.log('write back')
     },
     deleteMsg (item) {
-      console.log(item)
+      // console.log(item)
       this.$confirm('确定要删除吗？', '提示', {
         confirmBottonText: '确定',
         cancelButtonText: '取消',
@@ -162,6 +172,9 @@ export default {
                   duration: '2000'
                 })
               }
+            })
+            .catch(e => {
+              console.log(e)
             })
         })
         .catch(() => {

@@ -3,21 +3,21 @@
     <div class="welcome-info">
       <h2>{{ greeting }}好！</h2>
     </div>
-    <div class="cards">
+    <div class="cards  fade-in">
       <div class="card-1" @click="toArticleList">
-        <i class="el-icon-box"></i>
+        <i class="iconfont icon-ar-view"></i>
         <div class="card1-description">随便看看🧐</div>
       </div>
       <div class="card-2" @click="toCreate">
-        <i class="el-icon-box"></i>
+        <i class="iconfont icon-ar-xiezuo"></i>
         <div class="card2-description">开始创作😎</div>
       </div>
       <div class="card-3" @click="toCollection">
-        <i class="el-icon-box"></i>
+        <i class="iconfont icon-ar-tuijian"></i>
         <div class="card3-description">查看收藏🥰</div>
       </div>
       <div class="card-4" @click="toMessage">
-        <i class="el-icon-box"></i>
+        <i class="iconfont icon-ar-algertMsg"></i>
         <div class="card4-description">好友来信🥳</div>
       </div>
     </div>
@@ -69,7 +69,7 @@ export default {
       this.$http
         .get(`statistic?date=${day}&week=${week}&uid=${uid}`)
         .then(res => {
-          console.log(res.data)
+          // console.log(res.data)
           if (res.data.length > 0) {
             for (const item of res.data) {
               item.ptime = dateFormatSta(item.ptime).split(' ')[0]
@@ -224,6 +224,10 @@ export default {
     &:hover {
       border: 3px solid (@card4-bg+#817b7b11);
     }
+  }
+  i[class*='iconfont'] {
+    font-size: 40px;
+    color: #151615af;
   }
 }
 </style>

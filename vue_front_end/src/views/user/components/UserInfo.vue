@@ -78,7 +78,7 @@
             :showHeader="false"
             :personal="false"
             :articleLists="this.articlesV"
-            v-if="articles.length > 0"
+            v-if="articlesV.length > 0"
           ></article-list>
         </el-tab-pane>
 
@@ -420,6 +420,7 @@ export default {
     async getVisitorArticle () {
       await this.getUserIdByName()
       this.articlesV = []
+      console.log(this.userID)
       await this.$http.get(`personalArticle?uid=${this.userID}`).then(res => {
         for (const d of res.data) {
           const publishTime = dateFormat(d.publish_time)

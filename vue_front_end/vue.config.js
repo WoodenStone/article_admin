@@ -6,7 +6,7 @@ function resolve (dir) {
   return path.join(__dirname, dir)
 }
 
-const name = defaultSettings.title || 'vue the moment' // page title
+const name = defaultSettings.title || 'vue front end' // page title
 
 // If your port is set to 80,
 // use administrator privileges to execute the command line.
@@ -24,7 +24,17 @@ module.exports = {
    * In most cases please use '/' !!!
    * Detail: https://cli.vuejs.org/config/#publicpath
    */
-  publicPath: '/',
+  pwa: {
+    iconPaths: {
+      favicon32: 'favicon.ico',
+      favicon16: 'favicon.ico',
+      favicon128: 'favicon.ico',
+      appleTouchIcon: 'favicon.ico',
+      maskIcon: 'favicon.ico',
+      msTileImage: 'favicon.ico'
+    }
+  },
+  publicPath: './',
   outputDir: 'dist',
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
@@ -79,6 +89,11 @@ module.exports = {
         symbolId: 'icon-[name]'
       })
       .end()
+
+    config.plugin('html').tap(args => {
+      args[0].title = '轻博客后台管理系统'
+      return args
+    })
 
     config.when(process.env.NODE_ENV !== 'development', config => {
       config

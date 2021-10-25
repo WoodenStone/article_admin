@@ -134,37 +134,45 @@ export default {
             }
           }
         })
+        .catch(e => {
+          console.log(e)
+        })
     },
     addMessage (value) {
-      return this.$http.post('newMessage', value).then((res, err) => {
-        if (!err) {
-          if (res.status === 200) {
+      return this.$http
+        .post('newMessage', value)
+        .then((res, err) => {
+          if (!err) {
+            if (res.status === 200) {
+              this.$message({
+                type: 'success',
+                message: '发送成功',
+                duration: '2000'
+              })
+              // 先重置再跳转到发件箱
+              this.resetForm('message')
+
+              setTimeout(() => {
+                this.update()
+              }, 2000)
+            }
+          } else {
             this.$message({
-              type: 'success',
-              message: '发送成功',
+              type: 'error',
+              message: '服务器错误，请稍候再试…',
               duration: '2000'
             })
-            // 先重置再跳转到发件箱
-            this.resetForm('message')
-
-            setTimeout(() => {
-              this.update()
-            }, 2000)
+            console.log(err)
           }
-        } else {
-          this.$message({
-            type: 'error',
-            message: '服务器错误，请稍候再试…',
-            duration: '2000'
-          })
-          console.log(err)
-        }
-      })
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     sendMessage (formName) {
       this.$refs[formName].validate(async valid => {
         if (valid) {
-          console.log(this.message)
+          // console.log(this.message)
           const value = Object.assign({}, this.message)
           const uid = JSON.parse(window.localStorage.getItem('user')).user_id
           const uname = JSON.parse(window.localStorage.getItem('user'))
@@ -190,21 +198,26 @@ export default {
     querySearchAsync (query, callback) {
       let list = [{}]
       const value = { q: query }
-      this.$http.post('searchName', value).then((res, err) => {
-        if (!err) {
-          if (res.data.length > 0) {
-            for (const i of res.data) {
-              i.value = i.user_name
+      this.$http
+        .post('searchName', value)
+        .then((res, err) => {
+          if (!err) {
+            if (res.data.length > 0) {
+              for (const i of res.data) {
+                i.value = i.user_name
+              }
+              list = res.data
+            } else {
+              list = [{ value: '暂无结果' }]
             }
-            list = res.data
+            callback(list)
           } else {
-            list = [{ value: '暂无结果' }]
+            console.log('err', err)
           }
-          callback(list)
-        } else {
-          console.log('err', err)
-        }
-      })
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     handleSelect (item) {
       //   console.log(item)
@@ -215,7 +228,7 @@ export default {
         })
       } */
       this.message.consignee_name = item.user_name
-      console.log(item)
+      // console.log(item)
     },
     // 强制刷新输入内容
     onInput () {

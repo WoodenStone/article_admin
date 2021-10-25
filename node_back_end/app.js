@@ -263,7 +263,7 @@ app.post('/api/register', (req, resp) => {
 // 用户信息更改，返回
 app.post('/api/userInfoChange', (req, resp) => {
     const params = req.body
-    const sql_find = `select user_id from user_info where user_name = "${params.NEWname}";`;
+    const sql_find = `select user_id from user_info where user_id = "${params.id}";`;
     const sql_update = `update user_info set user_name = "${params.NEWname}", user_pwd = "${params.NEWpwd}" where user_id  = ${params.id};`;
     let resValue = { result: 0 };
     db(sql_find).then(res => {

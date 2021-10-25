@@ -43,16 +43,16 @@
 
     <el-container class="action" name="action">
       <el-button
-        icon="el-icon-caret-top"
+        icon="iconfont icon-ar-thumb-up"
         circle
         @click="thumbupChange"
-        :class="thumbup_status === 1 ? 'thumbup-yes' : ''"
+        :class="thumbup_status === 1 ? 'thumbup-yes' : 'thumbup'"
       ></el-button>
       <el-button
-        icon="el-icon-star-off"
+        icon="iconfont icon-ar-collection"
         circle
         @click="collectionSet"
-        :class="favorite_status === 1 ? 'favorite-yes' : ''"
+        :class="favorite_status === 1 ? 'favorite-yes' : 'favorite'"
       ></el-button>
     </el-container>
     <el-container>
@@ -108,7 +108,7 @@ export default {
     favorite_status: {
       handler (newVal) {
         this.favorite_status = newVal
-        console.log(newVal)
+        // console.log(newVal)
       },
       immediate: true
     }
@@ -122,15 +122,20 @@ export default {
     },
     fetchArticle () {
       const articleID = this.$route.query.id
-      this.$http.get(`articleDetail?aid=${articleID}`).then((res, err) => {
-        if (!err) {
-          this.articleDetail = res.data
-          this.articleDetail.publish_time = dateFormat(res.data.publish_time)
-          this.articleDetail.update_time = dateFormat(res.data.update_time)
-        } else {
-          console.log(err)
-        }
-      })
+      this.$http
+        .get(`articleDetail?aid=${articleID}`)
+        .then((res, err) => {
+          if (!err) {
+            this.articleDetail = res.data
+            this.articleDetail.publish_time = dateFormat(res.data.publish_time)
+            this.articleDetail.update_time = dateFormat(res.data.update_time)
+          } else {
+            console.log(err)
+          }
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     // 获取用户对某篇文章的操作状态
     fetchStatus () {
@@ -146,6 +151,9 @@ export default {
             this.thumbup_status = 0
           }
         })
+        .catch(e => {
+          console.log(e)
+        })
       // 收藏状态
       this.$http
         .get(`favoriteStatus?userID=${userID}&articleID=${articleID}`)
@@ -159,6 +167,9 @@ export default {
           } else {
             console.log(err)
           }
+        })
+        .catch(e => {
+          console.log(e)
         })
     },
     // 变更点赞状态
@@ -184,37 +195,6 @@ export default {
         }
       })
     },
-    // 变更收藏状态
-    /* favoriteChange () {
-      const value = {
-        userID: this.userID,
-        articleID: this.articleID,
-        favoriteStatus: this.favorite_status
-      }
-      this.$http.post('favoriteStatus', value).then((res, err) => {
-        if (!err) {
-          if (res.status === 200) {
-            this.favorite_status = this.favorite_status === 1 ? 0 : 1
-            if (this.favorite_status === 1) {
-              this.$message({
-                type: 'success',
-                message: '已添加至默认收藏夹',
-                duration: 1000
-              })
-              this.fetchStatus()
-            }
-          } else {
-            this.$message({
-              message: '操作失败，请稍后再试',
-              type: 'warning',
-              duration: '2000'
-            })
-          }
-        } else {
-          console.log(err)
-        }
-      })
-    }, */
     getComments () {
       this.$http
         .get(`commentsOfOneArticle/${this.articleID}`)
@@ -228,6 +208,9 @@ export default {
           } else {
             console.log(err)
           }
+        })
+        .catch(e => {
+          console.log(e)
         })
     },
     collectionSet () {
@@ -264,9 +247,15 @@ export default {
   margin: 15px;
   padding: 0 25px;
 }
+.favorite,
+.thumbup {
+  box-shadow: 2px 2px 1px #aaa;
+}
 .thumbup-yes,
 .favorite-yes {
-  background-color: @status-color;
+  color: #4977c7;
+  background-color: #d8eeee;
+  box-shadow: 1px 1px 1px #aaa;
 }
 .article-info {
   align-items: center;

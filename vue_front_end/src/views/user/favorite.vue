@@ -33,16 +33,21 @@ export default {
     getFavoriteArticles () {
       const cid = this.$route.query.cid
       const uid = JSON.parse(window.localStorage.getItem('user')).user_id
-      this.$http.get(`favoriteArticle?cid=${cid}&uid=${uid}`).then(res => {
-        for (const d of res.data) {
-          const publishTime = dateFormat(d.publish_time)
-          const updateTime = dateFormat(d.update_time)
-          if (d.content.length > 30) {
-            d.content = d.content.slice(0, 30).concat('......')
+      this.$http
+        .get(`favoriteArticle?cid=${cid}&uid=${uid}`)
+        .then(res => {
+          for (const d of res.data) {
+            const publishTime = dateFormat(d.publish_time)
+            const updateTime = dateFormat(d.update_time)
+            if (d.content.length > 30) {
+              d.content = d.content.slice(0, 30).concat('......')
+            }
+            this.favorArticles.push({ ...d, publishTime, updateTime })
           }
-          this.favorArticles.push({ ...d, publishTime, updateTime })
-        }
-      })
+        })
+        .catch(e => {
+          console.log(e)
+        })
     }
   }
 }

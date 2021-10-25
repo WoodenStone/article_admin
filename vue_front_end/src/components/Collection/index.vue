@@ -54,7 +54,7 @@ export default {
     }
   },
   async created () {
-    console.log(this.userInfo, 'info')
+    // console.log(this.userInfo, 'info')
     await this.getCollection()
     await this.findCollectionStatus()
     // console.log(this.userInfo)
@@ -87,31 +87,36 @@ export default {
         uid: this.userInfo.uid,
         cid: this.collectionChecked
       }
-      this.$http.post('articleFavorite', value).then((res, err) => {
-        if (!err) {
-          if (res.status === 200) {
-            this.$message({
-              type: 'success',
-              message: '操作成功！可到 个人中心-我的收藏 中查看',
-              duration: 2000
-            })
-            if (value.cid.length === 0) {
-              this.$emit('changeFavorStatus', false)
+      this.$http
+        .post('articleFavorite', value)
+        .then((res, err) => {
+          if (!err) {
+            if (res.status === 200) {
+              this.$message({
+                type: 'success',
+                message: '操作成功！可到 个人中心-我的收藏 中查看',
+                duration: 2000
+              })
+              if (value.cid.length === 0) {
+                this.$emit('changeFavorStatus', false)
+              } else {
+                this.$emit('changeFavorStatus', true)
+              }
+              this.$emit('close')
             } else {
-              this.$emit('changeFavorStatus', true)
+              this.$message({
+                type: 'warning',
+                message: '收藏失败，请稍后再试',
+                duration: 2000
+              })
             }
-            this.$emit('close')
           } else {
-            this.$message({
-              type: 'warning',
-              message: '收藏失败，请稍后再试',
-              duration: 2000
-            })
+            console.log(err)
           }
-        } else {
-          console.log(err)
-        }
-      })
+        })
+        .catch(e => {
+          console.log(e)
+        })
     }
   }
 }

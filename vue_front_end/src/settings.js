@@ -1,3 +1,3 @@
 module.exports = {
-  title: 'Vue front end'
+  title: '轻博客后台管理系统'
 }

@@ -98,14 +98,19 @@ export default {
     // 获取文章信息
     getArticleDetail () {
       const aid = this.$route.query.id
-      this.$http.get(`articleDetail?aid=${aid}`).then((res, err) => {
-        if (!err) {
-          this.article = res.data
-          // console.log(this.article, '文章信息')
-        } else {
-          console.log(err)
-        }
-      })
+      this.$http
+        .get(`articleDetail?aid=${aid}`)
+        .then((res, err) => {
+          if (!err) {
+            this.article = res.data
+            // console.log(this.article, '文章信息')
+          } else {
+            console.log(err)
+          }
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     // 去除markdown符号 用于模糊查询
     articleFilter () {
@@ -128,11 +133,11 @@ export default {
           } else {
             this.articleFilter()
             if (!this.isEdit) {
-              console.log(this.article, 'arti add')
+              // console.log(this.article, 'arti add')
               // this.submitAdd()
               this.submitAdd()
             } else {
-              console.log(this.article, 'arti update')
+              // console.log(this.article, 'arti update')
               this.submitUpdate()
             }
           }
@@ -147,53 +152,61 @@ export default {
     },
     // 更新某篇文章
     submitUpdate () {
-      console.log(this.article, '文章')
-      this.$http.post('updateArticle', this.article).then((res, err) => {
-        if (!err) {
-          // console.log('success')
-          if (res.data.affectedRows === 1) {
-            // console.log('success', res.data)
-            this.$message({
-              message: '修改成功',
-              type: 'success',
-              duration: '2000'
-            })
-            // 跳转到详情页
-            setTimeout(() => {
-              this.$router.push({
-                path: '/table/detail',
-                query: { id: this.article.id }
+      this.$http
+        .post('updateArticle', this.article)
+        .then((res, err) => {
+          if (!err) {
+            // console.log('success')
+            if (res.data.affectedRows === 1) {
+              // console.log('success', res.data)
+              this.$message({
+                message: '修改成功',
+                type: 'success',
+                duration: '2000'
               })
-            }, 2000)
+              // 跳转到详情页
+              setTimeout(() => {
+                this.$router.push({
+                  path: '/table/detail',
+                  query: { id: this.article.id }
+                })
+              }, 2000)
+            }
+          } else {
+            console.log(err)
           }
-        } else {
-          console.log(err)
-        }
-      })
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     // 新增文章
     submitAdd () {
-      console.log(this.article, '新增')
-      this.$http.post('addArticle', this.article).then((res, err) => {
-        if (!err) {
-          if (res.data.insertId) {
-            this.$message({
-              message: '新增成功',
-              type: 'success',
-              duration: '2000'
-            })
-            // 跳转到详情页
-            setTimeout(() => {
-              this.$router.push({
-                path: '/table/detail',
-                query: { id: res.data.insertId }
+      this.$http
+        .post('addArticle', this.article)
+        .then((res, err) => {
+          if (!err) {
+            if (res.data.insertId) {
+              this.$message({
+                message: '新增成功',
+                type: 'success',
+                duration: '2000'
               })
-            }, 2000)
+              // 跳转到详情页
+              setTimeout(() => {
+                this.$router.push({
+                  path: '/table/detail',
+                  query: { id: res.data.insertId }
+                })
+              }, 2000)
+            }
+          } else {
+            console.log(err)
           }
-        } else {
-          console.log(err)
-        }
-      })
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     // 编辑界面返回
     handleBack () {
@@ -216,11 +229,15 @@ export default {
         method: 'post',
         data: formdata,
         headers: { 'Content-Type': 'multipart/form-data' }
-      }).then(url => {
-        // 第二步.将返回的url替换到文本原位置![...](0) -> ![...](url)
-        // console.log(url)
-        this.$refs.md.$img2Url(pos, url.data)
       })
+        .then(url => {
+          // 第二步.将返回的url替换到文本原位置![...](0) -> ![...](url)
+          // console.log(url)
+          this.$refs.md.$img2Url(pos, url.data)
+        })
+        .catch(e => {
+          console.log(e)
+        })
     }
   }
 }

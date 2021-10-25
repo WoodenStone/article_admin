@@ -61,7 +61,7 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitForm('collection')"
-          >立即创建</el-button
+          >保 存</el-button
         >
       </div>
     </el-dialog>
@@ -115,10 +115,15 @@ export default {
   methods: {
     getCollection () {
       const uid = JSON.parse(window.localStorage.getItem('user')).user_id
-      this.$http.get(`collection?uid=${uid}`).then(res => {
-        this.collectionList = res.data
-        // console.log(this.collectionList)
-      })
+      this.$http
+        .get(`collection?uid=${uid}`)
+        .then(res => {
+          this.collectionList = res.data
+          // console.log(this.collectionList)
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     handleCheck (cid) {
       //   console.log(cid)
@@ -145,7 +150,7 @@ export default {
             this.editCollection()
           }
         } else {
-          console.log(this.collection)
+          // console.log(this.collection)
           return false
         }
       })
@@ -156,32 +161,37 @@ export default {
         cdes: this.collection.description,
         uid: JSON.parse(window.localStorage.getItem('user')).user_id
       }
-      this.$http.post('newCollection', value).then((res, err) => {
-        if (!err) {
-          if (res.status === 200) {
-            this.$message({
-              type: 'success',
-              message: '创建成功!',
-              duration: '2000'
-            })
+      this.$http
+        .post('newCollection', value)
+        .then((res, err) => {
+          if (!err) {
+            if (res.status === 200) {
+              this.$message({
+                type: 'success',
+                message: '创建成功!',
+                duration: '2000'
+              })
+            } else {
+              this.dialogFormVisible = false
+              this.$message({
+                type: 'warning',
+                message: '未知错误，请稍后再试',
+                duration: '2000'
+              })
+            }
+
+            setTimeout(() => {
+              this.dialogFormVisible = false
+              this.update()
+            }, 2000)
           } else {
             this.dialogFormVisible = false
-            this.$message({
-              type: 'warning',
-              message: '未知错误，请稍后再试',
-              duration: '2000'
-            })
+            console.log(err)
           }
-
-          setTimeout(() => {
-            this.dialogFormVisible = false
-            this.update()
-          }, 2000)
-        } else {
-          this.dialogFormVisible = false
-          console.log(err)
-        }
-      })
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     editCollection () {
       // console.log(this.collection)
@@ -189,24 +199,29 @@ export default {
         ...this.collection
       }
       // console.log(value, 'v')
-      this.$http.post('collectionInfo', value).then((res, err) => {
-        if (!err) {
-          this.$message({
-            type: 'success',
-            message: '修改成功!',
-            duration: '2000'
-          })
-          setTimeout(() => {
-            this.dialogFormVisible = false
-            this.update()
-          }, 2000)
-        } else {
-          console.log(err)
-        }
-      })
+      this.$http
+        .post('collectionInfo', value)
+        .then((res, err) => {
+          if (!err) {
+            this.$message({
+              type: 'success',
+              message: '修改成功!',
+              duration: '2000'
+            })
+            setTimeout(() => {
+              this.dialogFormVisible = false
+              this.update()
+            }, 2000)
+          } else {
+            console.log(err)
+          }
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     handleChange (item) {
-      console.log(item)
+      // console.log(item)
       this.dialogFormVisible = true
       this.isEdit = true
       this.collection.cid = item.collection_id
@@ -246,6 +261,9 @@ export default {
                   duration: '2000'
                 })
               }
+            })
+            .catch(e => {
+              console.log(e)
             })
         })
         .catch(() => {

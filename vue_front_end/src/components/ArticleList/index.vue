@@ -101,6 +101,7 @@ import { dateFormat } from '@/utils/dateFormat.js'
 import Collection from '@/components/Collection'
 export default {
   name: 'ArticleList',
+  inject: ['reload'],
   props: [
     'showAuthor',
     'showContent',
@@ -184,6 +185,9 @@ export default {
                 })
               }
             })
+            .catch(err => {
+              console.log(err)
+            })
         })
         .catch(() => {
           this.$message({
@@ -201,20 +205,26 @@ export default {
     getAllArticle () {
       // 不先置空文章数量会增加
       this.articles = []
-      this.$http.get('Article').then(res => {
-        // console.log(res.data)
-        for (const d of res.data) {
-          const publishTime = dateFormat(d.publish_time)
-          const updateTime = dateFormat(d.update_time)
-          if (d.content.length > 30) {
-            d.content = d.content.slice(0, 30).concat('......')
-            // d.content
+      this.$http
+        .get('Article')
+        .then(res => {
+          // console.log(res.data)
+          for (const d of res.data) {
+            const publishTime = dateFormat(d.publish_time)
+            const updateTime = dateFormat(d.update_time)
+            if (d.content.length > 30) {
+              d.content = d.content.slice(0, 30).concat('......')
+              // d.content
+            }
+            // d.tagName = d.tagName.join(' | ')
+            this.articles.push({ ...d, publishTime, updateTime })
           }
-          // d.tagName = d.tagName.join(' | ')
-          this.articles.push({ ...d, publishTime, updateTime })
-        }
-        this.$message('已更新！')
-      })
+          this.update()
+          this.$message('已更新！')
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     // 更新指定作者的文章列表
     async getPersonalArticle () {
@@ -233,21 +243,26 @@ export default {
     querySearchAsync (query, callback) {
       let list = [{}]
       const value = { q: query }
-      this.$http.post('search', value).then((res, err) => {
-        if (!err) {
-          if (res.data.length > 0) {
-            for (const i of res.data) {
-              i.value = i.title
+      this.$http
+        .post('search', value)
+        .then((res, err) => {
+          if (!err) {
+            if (res.data.length > 0) {
+              for (const i of res.data) {
+                i.value = i.title
+              }
+              list = res.data
+            } else {
+              list = [{ value: '暂无结果' }]
             }
-            list = res.data
+            callback(list)
           } else {
-            list = [{ value: '暂无结果' }]
+            console.log('err', err)
           }
-          callback(list)
-        } else {
-          console.log('err', err)
-        }
-      })
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     // 选中条目可以跳转到详情页
     handleSelect (item) {
@@ -263,6 +278,9 @@ export default {
       this.userInfo.aid = row.id
       // console.log(this.userInfo.aid, 'aid')
       this.showDialog = !this.showDialog
+    },
+    update () {
+      this.reload()
     }
   }
 }

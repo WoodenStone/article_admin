@@ -13,6 +13,10 @@ VueRouter.prototype.push = function push (location) {
 
 const constRoutes = [
   {
+    path: '/404',
+    component: () => import('@/views/error-page/404')
+  },
+  {
     path: '/login',
     component: () => import('@/views/login/login'),
     redirect: '/login/login',
@@ -128,6 +132,11 @@ const constRoutes = [
         meta: { title: 'Visitor', icon: '', requireAuth: true }
       }
     ]
+  },
+
+  {
+    path: '*',
+    redirect: '/404'
   }
 ]
 

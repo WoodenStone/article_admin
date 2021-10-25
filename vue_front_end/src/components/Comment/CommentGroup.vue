@@ -130,16 +130,21 @@ export default {
       if (this.comment.content.length < 1) {
         this.$message.warning('请输入评论')
       } else {
-        this.$http.post('Comment', this.comment).then(res => {
-          // console.log(res)
-          if (res.status === 200) {
-            console.log('success')
-            this.dialogFormVisible = false
-            this.update()
-          } else {
-            console.log('err')
-          }
-        })
+        this.$http
+          .post('Comment', this.comment)
+          .then(res => {
+            // console.log(res)
+            if (res.status === 200) {
+              // console.log('success')
+              this.dialogFormVisible = false
+              this.update()
+            } else {
+              console.log('err')
+            }
+          })
+          .catch(e => {
+            console.log(e)
+          })
       }
     },
     clearForm () {

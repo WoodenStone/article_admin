@@ -1,3 +1,9 @@
+<!--
+ * @author: WoodenStone
+ * @lastEditors: WoodenStone
+ * @Date: 2021-10-16 13:26:08
+ * @LastEditTime: 2021-10-22 22:27:48
+-->
 <template>
   <el-aside
     class="sidebar-container"
@@ -14,67 +20,35 @@
       :default-openeds="opened"
     >
       <el-menu-item index="/home">
-        <i class="el-icon-s-grid" />
+        <i class="iconfont icon-ar-kongzhizhongxin" />
         <span slot="title">主面板</span>
       </el-menu-item>
       <el-menu-item index="/table">
-        <i class="el-icon-collection" />
+        <i class="iconfont icon-ar-a-icon_Articlelist" />
         <span slot="title">文章列表</span>
       </el-menu-item>
       <el-menu-item index="/form">
-        <i class="el-icon-notebook-1" />
+        <i class="iconfont icon-ar-write" />
         <span slot="title">新建文章</span>
       </el-menu-item>
       <el-submenu index="user">
         <template slot="title">
-          <i class="el-icon-user" />
+          <i class="iconfont icon-ar-gerenzhongxin-gerenxinxi" />
           <span slot="title">个人中心</span>
         </template>
         <el-menu-item index="/user/index">
-          <i class="el-icon-box" />
+          <i class="iconfont icon-ar-zhuye" />
           <span slot="title">主页</span>
         </el-menu-item>
         <el-menu-item index="/user/message">
-          <i class="el-icon-coffee" />
+          <i class="iconfont icon-ar-openmail" />
           <span slot="title">站内信</span>
         </el-menu-item>
         <el-menu-item index="/user/collection">
-          <i class="el-icon-collection-tag" />
+          <i class="iconfont icon-ar-shoucangjia" />
           <span slot="title">我的收藏</span>
         </el-menu-item>
       </el-submenu>
-      <!--
-      <el-submenu index="2">
-        <template slot="title">
-          <i class="el-icon-notebook-1" />
-          <span>书影音</span>
-        </template>
-        <el-menu-item-group>
-          <el-menu-item index="/artwork/reading">阅读</el-menu-item>
-          <el-submenu index="2-2">
-            <template slot="title">影音</template>
-            <el-menu-item index="2-2-1">电影</el-menu-item>
-            <el-menu-item index="2-2-2">音乐</el-menu-item>
-          </el-submenu>
-        </el-menu-item-group>
-      </el-submenu>
-      <el-menu-item index="3">
-        <i class="el-icon-collection" />
-        <span slot="title">博客</span>
-      </el-menu-item>
-      <el-menu-item index="4">
-        <i class="el-icon-coffee" />
-        <span slot="title">游戏墙</span>
-      </el-menu-item>
-      <el-menu-item index="5">
-        <i class="el-icon-box" />
-        <span slot="title">照片墙</span>
-      </el-menu-item>
-      <el-menu-item index="6">
-        <i class="el-icon-wallet" />
-        <span slot="title">足迹</span>
-      </el-menu-item>
-      -->
     </el-menu>
     <div class="collapse-button">
       <el-button type="text" @click="collapseStatus">
@@ -125,6 +99,10 @@ export default {
   .collapse-button {
     align-self: center;
     flex: 0 0 auto;
+  }
+  i[class*='iconfont'] {
+    font-size: 20px;
+    margin-right: 5px;
   }
 }
 </style>

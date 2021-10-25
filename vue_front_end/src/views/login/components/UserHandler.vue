@@ -19,11 +19,13 @@
       >
         <div class="title-container">
           <h2 class="title" v-if="this.isRegistered">Sign In</h2>
-          <h2 class="title2" v-if="!this.isRegistered">Sign Up</h2>
+          <h2 class="title2" v-if="!this.isRegistered">
+            Sign Up
+          </h2>
         </div>
         <el-form-item prop="username">
           <el-input
-            prefix-icon="el-icon-user"
+            prefix-icon="iconfont icon-ar-custom-user"
             ref="username"
             v-model="loginForm.username"
             autocomplete="off"
@@ -31,7 +33,7 @@
         </el-form-item>
         <el-form-item prop="password">
           <el-input
-            prefix-icon="el-icon-box"
+            prefix-icon="iconfont icon-ar-passwordcopy"
             ref="password"
             v-model="loginForm.password"
             type="password"
@@ -72,7 +74,6 @@
 </template>
 
 <script>
-import bgImg from '@/assets/bg.jpg'
 export default {
   name: 'UserHandler',
   props: {
@@ -82,8 +83,15 @@ export default {
     }
   },
   data () {
+    const validatePass = (rule, value, callback) => {
+      const pattern = /^(\w){6,18}$/
+      if (value.match(pattern)) {
+        callback()
+      } else {
+        callback(new Error('密码只能包含字母、数字和下划线'))
+      }
+    }
     return {
-      bgImg: bgImg,
       isRegistered: this.registered,
       loginForm: {
         username: '',
@@ -106,6 +114,11 @@ export default {
             max: 18,
             message: '密码长度应在6到18个字符',
             trigger: 'blur'
+          },
+          {
+            validator: validatePass,
+            trigger: 'blur',
+            message: '密码只能包含字母、数字和下划线'
           }
         ]
       },
@@ -140,62 +153,72 @@ export default {
           this.loading = true
           // 登录
           if (this.isRegistered) {
-            this.$http.post('login', this.loginForm).then((res, err) => {
-              if (!err) {
-                // console.log(res.data)
-                if (res.data[1] === true) {
-                  this.$message({
-                    message: '登录成功',
-                    type: 'success',
-                    duration: '2000'
-                  })
-                  // 登录后将用户信息存入localStorage
-                  this.$store.commit('setuserInfo', res.data[0])
-                  const that = this
-                  setTimeout(function () {
-                    that.$router.push({ path: that.redirect || '/' })
-                  }, 1000)
-                  this.loading = false
+            this.$http
+              .post('login', this.loginForm)
+              .then((res, err) => {
+                if (!err) {
+                  // console.log(res.data)
+                  if (res.data[1] === true) {
+                    this.$message({
+                      message: '登录成功',
+                      type: 'success',
+                      duration: '2000'
+                    })
+                    // 登录后将用户信息存入localStorage
+                    this.$store.commit('setuserInfo', res.data[0])
+                    const that = this
+                    setTimeout(function () {
+                      that.$router.push({ path: that.redirect || '/' })
+                    }, 1000)
+                    this.loading = false
+                  } else {
+                    this.$message({
+                      message: '请输入正确的用户名和密码',
+                      type: 'error',
+                      duration: '2000'
+                    })
+                    this.loading = false
+                  }
                 } else {
-                  this.$message({
-                    message: '请输入正确的用户名和密码',
-                    type: 'error',
-                    duration: '2000'
-                  })
-                  this.loading = false
+                  console.log(err)
                 }
-              } else {
-                console.log(err)
-              }
-            })
+              })
+              .catch(e => {
+                console.log(e)
+              })
           } else {
             // 注册
-            this.$http.post('register', this.loginForm).then((res, err) => {
-              if (!err) {
-                if (res.data === true) {
-                  this.$message({
-                    message: '注册成功',
-                    type: 'success',
-                    duration: '2000'
-                  })
-                  this.isRegistered = true
-                  const that = this
-                  setTimeout(function () {
-                    that.$router.push('login')
-                  }, 1000)
-                  this.loading = false
+            this.$http
+              .post('register', this.loginForm)
+              .then((res, err) => {
+                if (!err) {
+                  if (res.data === true) {
+                    this.$message({
+                      message: '注册成功',
+                      type: 'success',
+                      duration: '2000'
+                    })
+                    this.isRegistered = true
+                    const that = this
+                    setTimeout(function () {
+                      that.$router.push('login')
+                    }, 1000)
+                    this.loading = false
+                  } else {
+                    this.$message({
+                      message: '该用户名已被占用',
+                      type: 'error',
+                      duration: '2000'
+                    })
+                    this.loading = false
+                  }
                 } else {
-                  this.$message({
-                    message: '该用户名已被占用',
-                    type: 'error',
-                    duration: '2000'
-                  })
-                  this.loading = false
+                  console.log(err)
                 }
-              } else {
-                console.log(err)
-              }
-            })
+              })
+              .catch(e => {
+                console.log(e)
+              })
           }
         } else {
           this.loading = false
@@ -231,6 +254,7 @@ export default {
   ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 .welcome-box {
+  cursor: default;
   width: 300px;
   height: 350px;
   background: hsla(214, 73%, 82%, 0.314);
