@@ -186,8 +186,8 @@ app.post('/api/search', (req, resp) => {
     where a.author_id = u.user_id
     and (
     a.rawcontent like "%${params.q}%" or 
-    a.title like "${params.q}" or
-    u.user_name like "${params.q}"
+    a.title like "%${params.q}%" or
+    u.user_name like "%${params.q}%"
     );`
     db(sql).then(
         res => {
@@ -271,7 +271,7 @@ app.post('/api/userInfoChange', (req, resp) => {
         if (checkID !== params.id && checkID > 0) {
             // duplicate name
             resValue.result = 2;
-            res.send(resValue)
+            resp.send(resValue)
         } else {
             // 可以进行修改
             db(sql_update).then(result => {
@@ -335,12 +335,16 @@ app.get('/api/getAvatar/:id', (req, resp) => {
 
         let result = JSON.parse(JSON.stringify(res))
         // console.log(result[0].avatarURL)
-        if (result[0].avatarURL != null) {
-            // resp.attachment(process.cwd() +'/'+ result[0].avatarURL)
-            resp.type('image/jpeg')
-            resp.sendFile(process.cwd() + '/' + result[0].avatarURL)
-        } else {
+        if(result.length === 0) {
             resp.end()
+        }else {
+            if (result[0].avatarURL != null) {
+                // resp.attachment(process.cwd() +'/'+ result[0].avatarURL)
+                resp.type('image/jpeg')
+                resp.sendFile(process.cwd() + '/' + result[0].avatarURL)
+            } else {
+                resp.end()
+            }
         }
     })
 })
@@ -350,11 +354,15 @@ app.get('/api/getAvatarByName/:name', (req, resp) => {
     const sql = `select avatarURL from user_info where user_name = "${req.params.name}";`
     db(sql).then(res => {
         let result = JSON.parse(JSON.stringify(res))
-        if (result[0].avatarURL != null) {
-            resp.type('image/jpeg')
-            resp.sendFile(process.cwd() + '/' + result[0].avatarURL)
-        } else {
-            resp.end()
+        if(result.length === 0) {
+            resp.end();
+        }else {
+            if (result[0].avatarURL != null) {
+                resp.type('image/jpeg')
+                resp.sendFile(process.cwd() + '/' + result[0].avatarURL)
+            } else {
+                resp.end()
+            }
         }
     })
 })
@@ -481,7 +489,7 @@ app.get('/api/getRelationStatusOne', (req, resp) => {
 // 变更关注状态
 app.get('/api/followStatusChange', (req, resp) => {
     const statusToChange = req.query.status == 'true' ? 0 : 1;
-    // console.log('状态', req.query.status)
+    console.log('状态', req.query.status)
     // 先查找是否有这一条
     const sql_find = `select * from relationship where user_id_from = ${req.query.uidFrom} and user_id_to = ${req.query.uidTo};`
     const sql_update = `update relationship set status = ${statusToChange}
@@ -547,7 +555,9 @@ const exec = async (sql_article_comment, id) => {
         for (let result of results) {
             // 依次查找对应评论下的回复
             result['children'] = []
-            const sql_reply = `select * from comments where article_commented_id = ${id} and is_reply = 1 and recipient_id = ${result['publisher_id']} and comment_index = ${result['comment_index']};`
+            // * 错误写法，不能指定接收者ID，因为有可能是回复楼中楼的
+            /* const sql_reply = `select * from comments where article_commented_id = ${id} and is_reply = 1 and recipient_id = ${result['publisher_id']} and comment_index = ${result['comment_index']};` */
+            const sql_reply = `select * from comments where article_commented_id = ${id} and is_reply = 1 and comment_index = ${result['comment_index']};`
             await db(sql_reply).then(data => {
                 const children = JSON.parse(JSON.stringify(data))
                 if (children.length > 0) {
@@ -888,21 +898,56 @@ app.delete('/api/message', (req, resp) => {
     })
 })
 
+// 首页创作统计数据
 app.get('/api/statistic', (req, resp) => {
     // const d = req.query.date.split('+');
     const day = req.query.date, week = req.query.week, uid = req.query.uid;
     console.log(day,week,uid)
     const sql = `select date(publish_time) as ptime, count(*) as cnt from article 
     where author_id = ${uid}
-    AND unix_timestamp(publish_time) <= unix_timestamp("${day}")
+    AND unix_timestamp(publish_time) <= (unix_timestamp("${day}") + 86400)
     group by date(publish_time);`
     db(sql).then(res => {
         let result = JSON.parse(JSON.stringify(res));
-        console.log(result)
+        // console.log(result)
         resp.send(result)
     })
 })
 
+// 获取赞数降序的文章列表
+app.get('/api/ArticleThumbupDesc', (req, resp) => {
+    const sql = `select id, count(*) as cnt from article_thumbup
+    where thumbup_status = 1
+    group by id 
+    order by cnt desc;`;
+    db(sql).then(res => {
+        let result = JSON.parse(JSON.stringify(res));
+        resp.send(result)
+    })
+})
+
+// 获取收藏降序的文章列表
+app.get('/api/ArticleFavoriteDesc', (req, resp) => {
+    const sql = `select id, count(*) as cnt from article_favorite
+    where favorite_status = 1
+    group by id
+    order by cnt desc;`;
+    db(sql).then(res => {
+        let result = JSON.parse(JSON.stringify(res));
+        resp.send(result)
+    })
+})
+
+// 获取回复评论数降序的文章列表
+app.get('/api/ArticleCommentsDesc', (req, resp) => {
+    const sql = `select article_commented_id as id, count(*) as cnt from comments
+    group by article_commented_id
+    order by cnt desc;`;
+    db(sql).then(res => {
+        let result = JSON.parse(JSON.stringify(res));
+        resp.send(result)
+    })
+})
 
 app.listen(port, () => {
     console.log(`app listening at http://localhost:${port}`)

@@ -4,9 +4,25 @@
       <el-button size="small" type="primary" @click="addArticle"
         >新增一篇</el-button
       >
+      <!--
       <el-button size="small" @click="getAllArticle" class="button-update"
         >更新列表</el-button
+      >-->
+
+      <el-select
+        v-model="sortOption"
+        placeholder="排序方式"
+        @change="sortMethod"
+        class="sort-option"
       >
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
       <el-autocomplete
         :maxlength="15"
         v-model="articles.title"
@@ -18,10 +34,13 @@
       >
       </el-autocomplete>
     </el-container>
-
-    <div class="article-list-wrapper  fade-in">
-      <el-table :data="articleLists" style="width: 100%">
-        <el-table-column prop="title" label="标题" width="180">
+    <div class="article-list-wrapper">
+      <el-table
+        :data="articles"
+        style="width: 100%"
+        class="article-table fade-in"
+      >
+        <el-table-column prop="title" label="标题" width="180" key="title">
         </el-table-column>
         <el-table-column
           v-if="showAuthor"
@@ -40,9 +59,17 @@
             >
           </template>
         </el-table-column>
-        <el-table-column prop="publishTime" label="发布时间"></el-table-column>
-        <el-table-column prop="updateTime" label="最后更新"></el-table-column>
-        <el-table-column prop="tagName" label="标签" class="tag">
+        <el-table-column
+          prop="publishTime"
+          label="发布时间"
+          key="publishTime"
+        ></el-table-column>
+        <el-table-column
+          prop="updateTime"
+          label="最后更新"
+          key="updateTime"
+        ></el-table-column>
+        <el-table-column prop="tagName" label="标签" class="tag" key="tagName">
           <template slot-scope="scope">
             <span
               v-for="(item, index) in scope.row.tagName"
@@ -56,7 +83,7 @@
         <!--
         <el-table-column v-if="showContent" prop="content" label="预览">
         </el-table-column> -->
-        <el-table-column fixed="right" label="操作" width="130">
+        <el-table-column fixed="right" label="操作" width="130" key="operation">
           <template slot-scope="scope">
             <el-button @click="handleCheck(scope.row)" type="text" size="small"
               >查看</el-button
@@ -122,16 +149,36 @@ export default {
       userInfo: {
         uid: JSON.parse(window.localStorage.getItem('user')).user_id,
         aid: 0
-      }
+      },
+      options: [
+        {
+          value: 0,
+          label: '默认排序'
+        },
+        {
+          value: 1,
+          label: '赞数降序'
+        },
+        {
+          value: 2,
+          label: '收藏降序'
+        },
+        {
+          value: 3,
+          label: '评论数降序'
+        }
+      ],
+      sortOption: 0
     }
   },
-  created () {
+  async created () {
     if (!this.personal) {
       // this.getAllArticle()
       // console.log(this.articleLists[0], '列表')
-      this.artilces = this.articleLists
+      this.articles = await this.articleLists
+      // console.log(this.articles)
     } else {
-      this.getPersonalArticle()
+      await this.getPersonalArticle()
     }
     this.userID = JSON.parse(window.localStorage.getItem('user')).user_id
     // console.log(this.articles)
@@ -220,7 +267,7 @@ export default {
             this.articles.push({ ...d, publishTime, updateTime })
           }
           this.update()
-          this.$message('已更新！')
+          //  this.$message('已更新！')
         })
         .catch(err => {
           console.log(err)
@@ -238,6 +285,78 @@ export default {
             this.articles.push({ ...d, publishTime, updateTime })
           }
         })
+        .catch(e => console.log(e))
+    },
+    // 不同的排序方式
+    sortMethod () {
+      // console.log(this.sortOption)
+      if (this.sortOption === 0) {
+        this.update()
+      } else if (this.sortOption === 1) {
+        this.articleSortThumbup()
+      } else if (this.sortOption === 2) {
+        this.articleSortFavorite()
+      } else if (this.sortOption === 3) {
+        this.articleSortComments()
+      }
+    },
+
+    /**
+     * @description:: 根据传入的index数据对array进行交换排序
+     * @param {Array} index
+     * @param {Array} array
+     * @return {*}
+     * @author: WoodenStone
+     */
+    interchange (index, array) {
+      for (let i = 0; i < index.length; i++) {
+        if (array[i].id !== index[i].id) {
+          let temp = {}
+          for (let j = i + 1; j < array.length; j++) {
+            if (array[j].id === index[i].id) {
+              // 这里赋值要用$set 否则视图不会更新
+              temp = array[j]
+              // this.articles[j] = this.articles[i]
+              this.$set(array, j, array[i])
+              // this.articles[i] = temp
+              this.$set(array, i, temp)
+            }
+          }
+        }
+      }
+    },
+    // 赞数降序
+    articleSortThumbup () {
+      // console.log(this.artilces)
+      this.$http
+        .get('ArticleThumbupDesc')
+        .then(res => {
+          // console.log(res)
+          const index = res.data
+          // 交换排序
+          this.interchange(index, this.articles)
+        })
+        .catch(e => console.log(e))
+    },
+    // 按收藏降序排序
+    articleSortFavorite () {
+      this.$http
+        .get('ArticleFavoriteDesc')
+        .then(res => {
+          const index = res.data
+          this.interchange(index, this.articles)
+        })
+        .catch(e => console.log(e))
+    },
+    // 按评论数降序排序
+    articleSortComments () {
+      this.$http
+        .get('ArticleCommentsDesc')
+        .then(res => {
+          const index = res.data
+          this.interchange(index, this.articles)
+        })
+        .catch(e => console.log(e))
     },
     // 关键字搜索，后端数据库模糊搜索
     querySearchAsync (query, callback) {
@@ -330,5 +449,8 @@ export default {
   /deep/ tr {
     max-height: 100px !important;
   }
+}
+.sort-option {
+  padding: 0 5px;
 }
 </style>

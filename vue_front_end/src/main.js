@@ -32,11 +32,14 @@ router.beforeEach(async (to, from, next) => {
   const userExpire = JSON.parse(window.localStorage.getItem('user__expires__'))
   const time = new Date().getTime()
   // 登录过期时间： 7天 1000 * 60 * 60 * 24 * 7
-  if (time - userExpire > 1000 * 60 * 60 * 24 * 7) {
-    store.commit('setuserInfo', '')
-    window.setTimeout(() => {
-      Message('登录信息过期，请重新登录')
-    }, 2000)
+  if (userExpire) {
+    if (time - userExpire > 1000 * 60 * 60 * 24 * 7) {
+      // console.log(time, userExpire)
+      store.commit('setuserInfo', '')
+      window.setTimeout(() => {
+        Message('登录信息过期，请重新登录')
+      }, 2000)
+    }
 
     // router.push(`/login?redirect=${this.$route.fullPath}`)
   }

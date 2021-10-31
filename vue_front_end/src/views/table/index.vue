@@ -2,7 +2,7 @@
  * @author: WoodenStone
  * @lastEditors: WoodenStone
  * @Date: 2021-10-16 13:26:08
- * @LastEditTime: 2021-10-20 16:07:41
+ * @LastEditTime: 2021-10-25 16:28:04
 -->
 <template>
   <article-list
@@ -47,6 +47,7 @@ export default {
             }
             this.articles.push({ ...d, publishTime, updateTime })
           }
+          this.articles.reverse()
           // console.log(this.articles, '文章')
         })
         .catch(e => {

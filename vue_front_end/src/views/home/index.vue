@@ -63,7 +63,7 @@ export default {
     getStatistic () {
       const myChart = this.$echarts.init(document.getElementById('main'))
       const d = new Date()
-      const day = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate() + 1}`
+      const day = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
       const week = `${d.getDay()}`
       const uid = JSON.parse(window.localStorage.getItem('user')).user_id
       this.$http

@@ -22,13 +22,13 @@
           size="small"
           plain
           v-if="isVisitor && !isFollowed"
-          @click="changeFollowStatus"
+          @click="throttle"
           >关注</el-button
         >
         <el-button
           size="small"
           v-if="isVisitor && isFollowed"
-          @click="changeFollowStatus"
+          @click="throttle"
           plain
           >已关注</el-button
         >
@@ -212,7 +212,9 @@ export default {
       articleList: [],
       commentList: [],
       articles: [],
-      articlesV: []
+      articlesV: [],
+      sendValid: true,
+      timer: ''
     }
   },
   created () {
@@ -318,15 +320,27 @@ export default {
       await this.getFollowers()
       await this.getFollowing()
     },
+    // 关注按钮节流
+    throttle () {
+      if (!this.sendValid) {
+        return
+      }
+      this.changeFollowStatus()
+      this.sendValid = false
+      this.timer = setTimeout(() => {
+        // console.log('click!')
+        this.sendValid = true
+      }, 500)
+    },
     // 关注或取关
-    changeFollowStatus (id, statusSet) {
+    changeFollowStatus () {
       const myID = JSON.parse(window.localStorage.getItem('user')).user_id
       this.$http
         .get('followStatusChange', {
           params: {
             uidFrom: myID,
-            uidTo: this.userID === myID ? id : this.userID,
-            status: this.userID === myID ? statusSet : this.isFollowed
+            uidTo: this.userID,
+            status: this.isFollowed
           }
         })
         .then((res, err) => {
@@ -415,6 +429,7 @@ export default {
           const updateTime = dateFormat(d.update_time)
           this.articles.push({ ...d, publishTime, updateTime })
         }
+        this.articles.reverse()
       })
     },
     async getVisitorArticle () {
@@ -428,6 +443,7 @@ export default {
           this.articlesV.push({ ...d, publishTime, updateTime })
         }
       })
+      this.articles.reverse()
     },
     update () {
       this.reload()

@@ -2,7 +2,7 @@
 node_modules
 /dist
 upload
-
+node_back_end/public
 
 # local env files
 .env.local
