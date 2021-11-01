@@ -1,5 +1,5 @@
 <template>
-  <div class="example-container">
+  <div class="breadcrumb-container">
     <el-breadcrumb separator-class="iconfont icon-ar-ic_locate_line">
       <el-breadcrumb-item
         v-for="(item, index) in breadList"
@@ -45,3 +45,10 @@ export default {
   }
 }
 </script>
+<style lang="less" scoped>
+.breadcrumb-container {
+  /deep/ el-breadcrumb {
+    cursor: default;
+  }
+}
+</style>

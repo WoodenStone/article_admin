@@ -14,7 +14,11 @@
         >
       </el-container>
       <ul>
-        <li v-for="(item, index) in dataList" :key="index">
+        <li
+          v-for="(item, index) in dataList"
+          :key="index"
+          class="comment-group"
+        >
           <comment-item :data="{ item, index }"></comment-item>
           <el-container class="comment-operation">
             <el-button
@@ -57,8 +61,15 @@
         <el-form :model="comment" ref="comment">
           <el-container class="comment-info">
             <span v-show="isReply">
-              回复 {{ this.comment.publisher_name }}</span
-            >
+              回复
+              <router-link
+                :to="{
+                  path: '/user/visitor',
+                  query: { author: this.comment.publisher_name }
+                }"
+                >{{ this.comment.publisher_name }}</router-link
+              >
+            </span>
           </el-container>
           <el-form-item>
             <el-input
@@ -157,12 +168,25 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less">
 ul,
 li {
   list-style: none;
   margin: 0;
   padding: 0;
+  cursor: default;
+}
+.comment-group {
+  margin: 5px 0;
+  padding: 0 10px;
+  border-radius: 10px;
+  &:first-child {
+    // border-top: 2px double #369;
+    margin-top: 10px;
+  }
+  &:hover {
+    box-shadow: 3px 5px 5px rgba(148, 150, 150, 0.3);
+  }
 }
 .comment-operation {
   justify-content: flex-end;

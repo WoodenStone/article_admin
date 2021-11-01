@@ -1,9 +1,25 @@
 <template>
   <el-container class="reply-container" direction="vertical">
     <el-container style="align-items: center">
-      <div>{{ children.data.publisher_name }}</div>
+      <div>
+        <router-link
+          :to="{
+            path: '/user/visitor',
+            query: { author: children.data.publisher_name }
+          }"
+          >{{ children.data.publisher_name }}</router-link
+        >
+      </div>
       &nbsp;回复&nbsp;
-      <div>{{ children.data.recipient_name }}</div>
+      <div>
+        <router-link
+          :to="{
+            path: '/user/visitor',
+            query: { author: children.data.recipient_name }
+          }"
+          >{{ children.data.recipient_name }}</router-link
+        >
+      </div>
       <div class="reply-time">
         {{ dateFormat(children.data.create_time) }}
       </div>
@@ -36,5 +52,8 @@ export default {
   margin-left: 10px;
   font-size: 8px;
   color: @time-color;
+}
+a {
+  text-decoration: none;
 }
 </style>

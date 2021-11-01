@@ -421,21 +421,24 @@ export default {
         }
       })
     },
-    getPersonalArticle () {
+    async getPersonalArticle () {
       this.articles = []
-      this.$http.get(`personalArticle?uid=${this.personalID}`).then(res => {
-        for (const d of res.data) {
-          const publishTime = dateFormat(d.publish_time)
-          const updateTime = dateFormat(d.update_time)
-          this.articles.push({ ...d, publishTime, updateTime })
-        }
-        this.articles.reverse()
-      })
+      await this.$http
+        .get(`personalArticle?uid=${this.personalID}`)
+        .then(res => {
+          for (const d of res.data) {
+            const publishTime = dateFormat(d.publish_time)
+            const updateTime = dateFormat(d.update_time)
+            this.articles.push({ ...d, publishTime, updateTime })
+          }
+        })
+      // console.log(this.articles)
+      this.articles.reverse()
     },
     async getVisitorArticle () {
       await this.getUserIdByName()
       this.articlesV = []
-      console.log(this.userID)
+      // console.log(this.userID)
       await this.$http.get(`personalArticle?uid=${this.userID}`).then(res => {
         for (const d of res.data) {
           const publishTime = dateFormat(d.publish_time)
@@ -443,7 +446,7 @@ export default {
           this.articlesV.push({ ...d, publishTime, updateTime })
         }
       })
-      this.articles.reverse()
+      this.articlesV.reverse()
     },
     update () {
       this.reload()

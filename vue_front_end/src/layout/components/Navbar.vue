@@ -14,7 +14,7 @@
       </el-button>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item>
-          <router-link to="/" style="text-decoration:none">
+          <router-link to="/user/index" style="text-decoration:none">
             <el-dropdown-item>
               主页
             </el-dropdown-item>
@@ -22,7 +22,7 @@
         >
         <a
           target="_blank"
-          href="https://github.com/WoodenStone"
+          href="https://github.com/WoodenStone/article_admin"
           style="text-decoration:none; text-align:center"
         >
           <el-dropdown-item>Github</el-dropdown-item>

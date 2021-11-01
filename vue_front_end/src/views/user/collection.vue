@@ -135,15 +135,6 @@ export default {
     submitForm (formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          if (this.collection.name === '默认收藏') {
-            this.$message({
-              type: 'error',
-              message: '不可命名为"默认收藏"！',
-              duration: '2000'
-            })
-            this.dialogFormVisible = false
-            return
-          }
           if (!this.isEdit) {
             this.createCollection()
           } else {
@@ -169,21 +160,21 @@ export default {
               this.$message({
                 type: 'success',
                 message: '创建成功!',
-                duration: '2000'
+                duration: '1000'
               })
             } else {
               this.dialogFormVisible = false
               this.$message({
                 type: 'warning',
                 message: '未知错误，请稍后再试',
-                duration: '2000'
+                duration: '1000'
               })
             }
 
             setTimeout(() => {
               this.dialogFormVisible = false
               this.update()
-            }, 2000)
+            }, 1000)
           } else {
             this.dialogFormVisible = false
             console.log(err)
@@ -206,12 +197,12 @@ export default {
             this.$message({
               type: 'success',
               message: '修改成功!',
-              duration: '2000'
+              duration: '1000'
             })
             setTimeout(() => {
               this.dialogFormVisible = false
               this.update()
-            }, 2000)
+            }, 1000)
           } else {
             console.log(err)
           }

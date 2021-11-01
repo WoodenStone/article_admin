@@ -2,7 +2,7 @@
  * @author: WoodenStone
  * @lastEditors: WoodenStone
  * @Date: 2021-10-17 16:50:26
- * @LastEditTime: 2021-10-19 19:15:13
+ * @LastEditTime: 2021-11-01 19:05:49
 -->
 <template>
   <el-dialog
@@ -80,8 +80,19 @@ export default {
       }
       // console.log(this.collectionChecked)
     },
+    // 更改收藏夹
     submitCollection () {
       // console.log(this.collectionChecked)
+      if (this.collectionList.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: `您还没有收藏夹哦~ 
+                    可到 个人中心-我的收藏 中创建收藏夹`,
+          duration: 3000
+        })
+        this.$emit('close')
+        return
+      }
       const value = {
         aid: this.userInfo.aid,
         uid: this.userInfo.uid,
@@ -102,6 +113,7 @@ export default {
               } else {
                 this.$emit('changeFavorStatus', true)
               }
+              this.$emit('update')
               this.$emit('close')
             } else {
               this.$message({

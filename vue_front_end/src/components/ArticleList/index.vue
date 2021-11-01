@@ -40,14 +40,9 @@
         style="width: 100%"
         class="article-table fade-in"
       >
-        <el-table-column prop="title" label="标题" width="180" key="title">
+        <el-table-column prop="title" label="标题" key="title">
         </el-table-column>
-        <el-table-column
-          v-if="showAuthor"
-          prop="author"
-          label="作者"
-          width="100"
-        >
+        <el-table-column v-if="showAuthor" prop="author" label="作者">
           <template slot-scope="scope">
             <router-link
               style="text-decoration:none"
@@ -63,11 +58,13 @@
           prop="publishTime"
           label="发布时间"
           key="publishTime"
+          width="150"
         ></el-table-column>
         <el-table-column
           prop="updateTime"
           label="最后更新"
           key="updateTime"
+          width="150"
         ></el-table-column>
         <el-table-column prop="tagName" label="标签" class="tag" key="tagName">
           <template slot-scope="scope">
@@ -117,6 +114,7 @@
       :showDialog.sync="showDialog"
       :userInfo="userInfo"
       @close="showDialog = false"
+      @update="update"
       v-if="userInfo.aid > 0"
     >
     </collection>
@@ -284,6 +282,7 @@ export default {
             const updateTime = dateFormat(d.update_time)
             this.articles.push({ ...d, publishTime, updateTime })
           }
+          this.articles.reverse()
         })
         .catch(e => console.log(e))
     },

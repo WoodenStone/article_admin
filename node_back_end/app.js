@@ -44,7 +44,7 @@ app.get('/api/Article', async (req, resp) => {
             article.tagName = []
             for (const tag of tagList) {
                 if (article.id === tag.article_id) {
-                    console.log('id', article.id)
+                    // console.log('id', article.id)
                     article.tagName.push(tag.tag_name);
                 }
             }
@@ -805,10 +805,10 @@ app.get('/api/favoriteArticle', async (req, resp) => {
 // 但不允许命名为“默认收藏”
 app.post('/api/newCollection', (req, resp) => {
     const params = req.body;
-    if (params.cname === "默认收藏") {
+    /* if (params.cname === "默认收藏") {
         resp.sendStatus(403);
         return;
-    }
+    } */
     const sql = `insert into collection(user_id, collection_name, collection_description) 
     values(${params.uid}, "${params.cname}","${params.cdes}");`
     db(sql).then(res => {
@@ -825,7 +825,7 @@ app.post('/api/collectionInfo', (req, resp) => {
     const params = req.body;
     const sql = `update collection set collection_name="${params.name}", collection_description = "${params.description}"
     where collection_id = ${params.cid};`
-    console.log('改了')
+    // console.log('改了')
     db(sql).then(res => {
         resp.end()
     })

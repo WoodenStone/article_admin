@@ -2,7 +2,15 @@
   <div class="comment-item">
     <el-container class="comment-info">
       <el-avatar class="avatar" :src="this.avatarurl"></el-avatar>
-      <div class="publisher">{{ data.item.publisher_name }}</div>
+      <div class="publisher">
+        <router-link
+          :to="{
+            path: '/user/visitor',
+            query: { author: data.item.publisher_name }
+          }"
+          >{{ data.item.publisher_name }}</router-link
+        >
+      </div>
       <div class="comment-time">
         {{ dateFormat(data.item.create_time) }}
       </div>
@@ -62,5 +70,8 @@ export default {
 .floor {
   margin-left: auto;
   color: @floor-color;
+}
+a {
+  text-decoration: none;
 }
 </style>

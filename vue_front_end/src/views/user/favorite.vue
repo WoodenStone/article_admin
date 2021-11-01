@@ -44,6 +44,7 @@ export default {
             }
             this.favorArticles.push({ ...d, publishTime, updateTime })
           }
+          this.favorArticles.reverse()
         })
         .catch(e => {
           console.log(e)

@@ -9,7 +9,14 @@
       {{ articleDetail.title }}
     </h2>
     <el-container class="article-info" direction="vertical">
-      <div prop="author">{{ articleDetail.author }}</div>
+      <router-link
+        prop="author"
+        :to="{
+          path: '/user/visitor',
+          query: { author: articleDetail.author }
+        }"
+        >{{ articleDetail.author }}</router-link
+      >
       <div class="time-info">
         <span>发布于 {{ articleDetail.publish_time }}</span>
         &nbsp;
@@ -126,6 +133,7 @@ export default {
         .get(`articleDetail?aid=${articleID}`)
         .then((res, err) => {
           if (!err) {
+            // console.log(res.data)
             this.articleDetail = res.data
             this.articleDetail.publish_time = dateFormat(res.data.publish_time)
             this.articleDetail.update_time = dateFormat(res.data.update_time)
