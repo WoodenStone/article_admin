@@ -79,7 +79,7 @@ export default {
       result.forEach(item => {
         item.delivery_time = dateFormat(item.delivery_time)
       })
-      this.receiveData = result.reverse()
+      this.receiveData = result
     },
     // 获取发件信息
     async getSentMessages () {
@@ -92,7 +92,7 @@ export default {
             value.forEach(item => {
               item.delivery_time = dateFormat(item.delivery_time)
             })
-            this.sendData = value.reverse()
+            this.sendData = value
           } else {
             console.log(err)
           }

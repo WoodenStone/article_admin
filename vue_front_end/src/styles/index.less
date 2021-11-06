@@ -12,6 +12,19 @@ body,
   margin: 0;
   padding: 0;
   font-family:"lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  line-height: 1.5rem;
+}
+html *::selection {
+  color: #eafbff;
+  background-color: #174d8eed;
+}
+html *::-webkit-selection {
+  color: #eafbff;
+  background-color: #174d8eed;
+}
+html *::-moz-selection {
+  color: #eafbff;
+  background-color: #174d8eed;
 }
 
 .clearfix {
@@ -158,5 +171,6 @@ a{
 	           blink-caret .5s step-end infinite alternate;
     -webkit-animation: typing 1.5s steps(30,end) forwards;
     text-align: center;
+    line-height: 1.7rem;
     
   }

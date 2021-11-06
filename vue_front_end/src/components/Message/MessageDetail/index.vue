@@ -2,7 +2,7 @@
  * @author: WoodenStone
  * @lastEditors: WoodenStone
  * @Date: 2021-10-16 19:36:10
- * @LastEditTime: 2021-10-17 13:28:24
+ * @LastEditTime: 2021-11-06 14:11:13
 -->
 <template>
   <el-drawer
@@ -24,7 +24,7 @@
       </div>
       <div class="message-time">{{ this.messageItem.delivery_time }}</div>
       <div class="message-content">
-        <pre>{{ this.messageItem.content }}</pre>
+        <pre class="msg-content">{{ this.messageItem.content }}</pre>
       </div>
     </div>
   </el-drawer>
@@ -90,6 +90,10 @@ export default {
     padding: 20px;
     background-color: #fff;
     box-shadow: 0 0 20px rgba(202, 196, 196, 0.3);
+  }
+  .msg-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
 }
 </style>
