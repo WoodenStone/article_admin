@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "vue-cli-service serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -36,7 +37,6 @@
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
     "mavon-editor": "^2.9.1",
-    "message-tree": "^0.1.8",
     "normalize.css": "^8.0.1",
     "remove-markdown": "^0.3.0",
     "vue-cli-plugin-element": "^1.0.1",

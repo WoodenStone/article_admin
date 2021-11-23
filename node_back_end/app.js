@@ -368,15 +368,6 @@ app.get('/api/getAvatarByName/:name', (req, resp) => {
 })
 
 
-// 获取用户对某篇文章的操作状态
-app.get('/api/fetchStatus', (req, resp) => {
-    const sql = `select thumbup_status, favorite_status from user_article where user_id=${req.query.userID} and article_id=${req.query.articleID};`
-    db(sql).then(res => {
-        const result = JSON.parse(JSON.stringify(res))
-        resp.send(result);
-    })
-})
-
 // 获取用户对某篇文章的点赞状态
 app.get('/api/thumbupStatus', (req, resp) => {
     const sql = `select * from article_thumbup
@@ -485,17 +476,17 @@ app.get('/api/getRelationStatusOne', (req, resp) => {
     })
 })
 
-// TODO 改成POST方法
+
 // 变更关注状态
-app.get('/api/followStatusChange', (req, resp) => {
-    const statusToChange = req.query.status == 'true' ? 0 : 1;
-    console.log('状态', req.query.status)
+app.post('/api/followStatusChange', (req, resp) => {
+
+    const statusToChange = req.body.status == true ? 0 : 1;
     // 先查找是否有这一条
-    const sql_find = `select * from relationship where user_id_from = ${req.query.uidFrom} and user_id_to = ${req.query.uidTo};`
+    const sql_find = `select * from relationship where user_id_from = ${req.body.uidFrom} and user_id_to = ${req.body.uidTo};`
     const sql_update = `update relationship set status = ${statusToChange}
-    where user_id_from = ${req.query.uidFrom} and user_id_to = ${req.query.uidTo};`
-    const sql_insert = `insert into relationship(user_id_from, user_id_to,status) values(${req.query.uidFrom}, ${req.query.uidTo}, ${statusToChange});`
-    // console.log(sql_update)
+    where user_id_from = ${req.body.uidFrom} and user_id_to = ${req.body.uidTo};`
+    const sql_insert = `insert into relationship(user_id_from, user_id_to,status) values(${req.body.uidFrom}, ${req.body.uidTo}, ${statusToChange});`
+    console.log(sql_find);
     db(sql_find).then(res => {
         const res_find = JSON.parse(JSON.stringify(res))
         // 已有记录，更新状态
@@ -504,6 +495,7 @@ app.get('/api/followStatusChange', (req, resp) => {
                 if (result.changedRows > 0) {
                     resp.sendStatus(200);
                 } else {
+                    console.log(JSON.parse(JSON.stringify(result)))
                     resp.sendStatus(500);
                 }
             })
@@ -638,7 +630,6 @@ app.post('/api/Comment', (req, resp) => {
 
 // 获取被关注列表
 app.get('/api/FollowersList', (req, resp) => {
-    // console.log(req.query.userID)
     const sql = `select user_id, user_name, avatarURL from user_info where user_id in ( 
         select user_id_from from relationship r, user_info u
         where r.user_id_to = ${req.query.userID}
@@ -802,7 +793,6 @@ app.get('/api/favoriteArticle', async (req, resp) => {
 })
 
 // 创建新收藏夹，不校验同名收藏夹是否已经存在(收藏夹有唯一编号collection_id)
-// 但不允许命名为“默认收藏”
 app.post('/api/newCollection', (req, resp) => {
     const params = req.body;
     /* if (params.cname === "默认收藏") {
@@ -825,7 +815,6 @@ app.post('/api/collectionInfo', (req, resp) => {
     const params = req.body;
     const sql = `update collection set collection_name="${params.name}", collection_description = "${params.description}"
     where collection_id = ${params.cid};`
-    // console.log('改了')
     db(sql).then(res => {
         resp.end()
     })

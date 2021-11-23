@@ -335,29 +335,26 @@ export default {
     // 关注或取关
     changeFollowStatus () {
       const myID = JSON.parse(window.localStorage.getItem('user')).user_id
-      this.$http
-        .get('followStatusChange', {
-          params: {
-            uidFrom: myID,
-            uidTo: this.userID,
-            status: this.isFollowed
-          }
-        })
-        .then((res, err) => {
-          if (!err) {
-            // console.log(res)
-            if (res.status === 200) {
-              this.isFollowed = !this.isFollowed
-              this.getFollowers()
-              this.getFollowing()
-              if (this.userID === myID) {
-                this.update()
-              }
+      const value = {
+        uidFrom: myID,
+        uidTo: this.userID,
+        status: this.isFollowed
+      }
+      this.$http.post('followStatusChange', value).then((res, err) => {
+        if (!err) {
+          // console.log(res)
+          if (res.status === 200) {
+            this.isFollowed = !this.isFollowed
+            this.getFollowers()
+            this.getFollowing()
+            if (this.userID === myID) {
+              this.update()
             }
-          } else {
-            console.log(err)
           }
-        })
+        } else {
+          console.log(err)
+        }
+      })
     },
     // 获取被关注数
     getFollowers () {
