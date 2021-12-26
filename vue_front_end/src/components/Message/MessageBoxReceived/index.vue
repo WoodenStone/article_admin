@@ -15,7 +15,7 @@
       >
         <el-card class="receive-card" shadow="hover">
           <div slot="header" class="clearfix">
-            <span class="receive-intotext">[发件人]</span>&nbsp;
+            <span class="receive-infotext">[发件人]</span>&nbsp;
             <span>{{ item.addresser_name }}</span>
             <span style="float: right">
               <el-tooltip
@@ -40,7 +40,7 @@
             <div class="receive-title">{{ item.title }}</div>
           </div>
           <div class="receive-content">
-            <span class="receive-intotext">[预览]</span>
+            <span class="receive-infotext">[预览]</span>
             {{ item.content }}
           </div>
           <div class="receive-info">
@@ -161,9 +161,9 @@ export default {
   }
 }
 
-.receive-intotext {
+.receive-infotext {
   font-family: Tahoma, Helvetica, Arial, '宋体', sans-serif;
-  font-size: 10px;
+  font-size: 0.8rem;
   text-decoration: underline;
 }
 .receive-title {

@@ -58,13 +58,13 @@
           prop="publishTime"
           label="发布时间"
           key="publishTime"
-          width="150"
+          width="200"
         ></el-table-column>
         <el-table-column
           prop="updateTime"
           label="最后更新"
           key="updateTime"
-          width="150"
+          width="200"
         ></el-table-column>
         <el-table-column prop="tagName" label="标签" class="tag" key="tagName">
           <template slot-scope="scope">
@@ -433,7 +433,7 @@ export default {
 }
 
 .tagName {
-  font-size: 8px;
+  font-size: 0.8rem;
   margin: 0 3px;
   padding: 3px;
   border-radius: 5px;

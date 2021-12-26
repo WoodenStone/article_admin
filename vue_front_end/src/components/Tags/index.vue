@@ -89,7 +89,7 @@ export default {
     }
   }
   .btn {
-    font-size: 8px;
+    font-size: 0.8rem;
     margin: 0 3px;
     padding: 3px;
     border-radius: 5px;

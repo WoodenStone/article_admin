@@ -81,7 +81,7 @@ export default {
 .message-main {
   margin-left: 20px;
   .message-time {
-    font-size: 10px;
+    font-size: 0.8rem;
     color: @time-color;
     padding: 10px 0 10px 0;
   }

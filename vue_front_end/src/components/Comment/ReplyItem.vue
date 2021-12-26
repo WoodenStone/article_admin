@@ -50,7 +50,7 @@ export default {
 @time-color: #666666;
 .reply-time {
   margin-left: 10px;
-  font-size: 8px;
+  font-size: 0.8rem;
   color: @time-color;
 }
 a {

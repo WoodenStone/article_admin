@@ -311,7 +311,7 @@ export default {
     padding: 0 20px;
   }
   p {
-    font-size: 8px;
+    font-size: 0.8rem;
     font-family: Tahoma, Helvetica, Arial, '宋体', sans-serif;
   }
   &:hover {

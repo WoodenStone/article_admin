@@ -268,13 +268,13 @@ export default {
 .article-info {
   align-items: center;
   .time-info {
-    font-size: 8px;
+    font-size: 0.8rem;
     padding: 10px;
     color: @time-color;
   }
 }
 .tagName {
-  font-size: 8px;
+  font-size: 0.8rem;
   margin: 0 3px;
   padding: 3px;
   border-radius: 5px;

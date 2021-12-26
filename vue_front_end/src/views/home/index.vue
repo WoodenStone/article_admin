@@ -26,7 +26,7 @@
         <div>您的创作统计：</div>
         <div id="main" style="width: 600px;height:400px;"></div>
       </div>
-      <div v-if="this.show">
+      <div v-if="this.show" class="none-info">
         您还没有创作任何文章哦， 试着<router-link to="table/index"
           >找点灵感</router-link
         >？
@@ -228,6 +228,14 @@ export default {
   i[class*='iconfont'] {
     font-size: 40px;
     color: #151615af;
+  }
+}
+.statistic {
+  align-items: center;
+  .chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
 </style>

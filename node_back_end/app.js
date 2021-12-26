@@ -112,16 +112,16 @@ app.delete('/api/deleteArticle', (req, resp) => {
 // 标签的更新
 const findTag = async (tag) => {
     // 查找标签是否已存在，如果没有就添加一条
-    let sql_tag_find = `select * from tag where tag_name = "${tag}";`
-    return db(sql_tag_find).then(res => {
+    let sql_tag_find = `select * from tag where tag_name = ?;`
+    return db(sql_tag_find, tag).then(res => {
         let result = JSON.parse(JSON.stringify(res))
         if (result.length > 0) {
             // console.log(result[0].tag_id, 'exist')
             return result[0].tag_id;
         } else {
             // 增加一条新标签
-            let sql_tag_insert = `insert into tag(tag_name) values("${tag}");`
-            return db(sql_tag_insert).then(data => {
+            let sql_tag_insert = `insert into tag(tag_name) values(?);`
+            return db(sql_tag_insert, tag).then(data => {
                 // console.log(data.insertId, 'not exist')
                 return data.insertId;
             })
@@ -132,7 +132,8 @@ const findTag = async (tag) => {
 // 添加文章
 app.post('/api/addArticle', async (req, resp) => {
     const params = req.body;
-    const sql_insert = `insert into article(title, author_id, content, rawcontent, publish_time) values ("${params.title}", ${params.author_id},"${params.content}", "${params.rawcontent}" ,NOW() );`
+    const sqlParam = [params.title, params.author_id, params.content , params.rawcontent ] 
+    const sql_insert =  `insert into article(title, author_id, content, rawcontent, publish_time) values (?, ?,?, ? ,NOW() );`
     // console.log(sql);
     const tagID = [];
     for (const tag of params.tagName) {
@@ -140,7 +141,7 @@ app.post('/api/addArticle', async (req, resp) => {
         tagID.push(id);
     }
 
-    let res = await db(sql_insert);
+    let res = await db(sql_insert, sqlParam);
     let aid = res.insertId;
 
     for (const id of tagID) {
@@ -155,8 +156,8 @@ app.post('/api/addArticle', async (req, resp) => {
 // 标签的更新：先删除该文章所有标签，再插入新标签
 app.post('/api/updateArticle', async (req, resp) => {
     const params = req.body;
-    console.log(params, '参数')
-    const sql_update = `update article set title = "${params.title}" , content="${params.content}", rawcontent="${params.rawcontent}" where id = ${params.id};`
+    const sqlParam = [params.title, params.content, params.rawcontent, params.id]
+    const sql_update = `update article set title = ? , content=?, rawcontent=? where id = ?;`
     // 删除映射
     const sql_tag_delete = `delete from article_tag where article_id = ${params.id};`
     await db(sql_tag_delete);
@@ -172,7 +173,7 @@ app.post('/api/updateArticle', async (req, resp) => {
         const sql_tag_map = `insert into article_tag values(${params.id}, ${id});`
         await db(sql_tag_map);
     }
-    await db(sql_update).then(
+    await db(sql_update, sqlParam).then(
         res => {
             resp.send(res);
         }
@@ -182,14 +183,15 @@ app.post('/api/updateArticle', async (req, resp) => {
 // 模糊搜索  标题、内容、作者
 app.post('/api/search', (req, resp) => {
     const params = req.body;
+    const sqlParam = [params.q, params.q, params.q]
     const sql = `select a.id, a.author_id, a.title, a.content, u.user_name from article a, user_info u
     where a.author_id = u.user_id
     and (
-    a.rawcontent like "%${params.q}%" or 
-    a.title like "%${params.q}%" or
-    u.user_name like "%${params.q}%"
+    a.rawcontent like concat('%', ?, '%') or 
+    a.title like concat('%', ?, '%') or
+    u.user_name like concat('%', ?, '%')
     );`
-    db(sql).then(
+    db(sql, sqlParam).then(
         res => {
             resp.send(res);
         }
@@ -197,14 +199,12 @@ app.post('/api/search', (req, resp) => {
 })
 
 
-
-
 // 用户名提示
 app.post('/api/searchName', (req, resp) => {
     const params = req.body;
     const sql = `select user_id, user_name from user_info
-    where user_name like "%${params.q}%";`
-    db(sql).then(
+    where user_name like concat('%', ?, '%');`
+    db(sql, params.q).then(
         res => {
             resp.send(res);
         }
@@ -214,8 +214,9 @@ app.post('/api/searchName', (req, resp) => {
 // 用户登录
 app.post('/api/login', (req, resp) => {
     const params = req.body;
-    const sql = `select * from user_info where user_name = "${params.username}";`;
-    db(sql).then(
+    let sqlParam = params.username
+    const sql = `select * from user_info where user_name = ?;`;
+    db(sql, sqlParam).then(
         res => {
             if (res.length) {
                 let value = [JSON.parse(JSON.stringify(res))[0], false];
@@ -238,15 +239,16 @@ app.post('/api/login', (req, resp) => {
 // 用户注册
 app.post('/api/register', (req, resp) => {
     const params = req.body;
-    // console.log(params);
-    const sql_find = `select user_id from user_info where user_name = "${params.username}";`;
-    const sql_add = `insert into user_info(user_name, user_pwd, user_permission) values("${params.username}", "${params.password}", 0);`
-    db(sql_find).then(
+    const findParams = params.username
+    const addParams = [params.username, params.password]
+    const sql_find = `select user_id from user_info where user_name = ?;`;
+    const sql_add = `insert into user_info(user_name, user_pwd, user_permission) values(?, ?, 0);`
+    db(sql_find, findParams).then(
         async res => {
             if (res.length > 0) {
                 resp.send(false);
             } else {
-                let registerRes = await db(sql_add);
+                let registerRes = await db(sql_add, addParams);
                 let sql_add_default_collection = `insert into collection(user_id, collection_name, collection_description) values(${registerRes.insertId}, "默认收藏", "默认收藏夹")`;
                 let collectionRes = await db(sql_add_default_collection);
                 // console.log(collectionRes.insertId);
@@ -263,10 +265,11 @@ app.post('/api/register', (req, resp) => {
 // 用户信息更改，返回
 app.post('/api/userInfoChange', (req, resp) => {
     const params = req.body
-    const sql_find = `select user_id from user_info where user_id = "${params.id}";`;
-    const sql_update = `update user_info set user_name = "${params.NEWname}", user_pwd = "${params.NEWpwd}" where user_id  = ${params.id};`;
+    const sql_find = `select user_id from user_info where user_id = ?;`;
+    const sqlParam = [params.NEWname, params.NEWpwd, params.id]
+    const sql_update = `update user_info set user_name = ?, user_pwd = ? where user_id  = ?;`;
     let resValue = { result: 0 };
-    db(sql_find).then(res => {
+    db(sql_find, params.id).then(res => {
         let checkID = JSON.parse(JSON.stringify(res))[0].user_id
         if (checkID !== params.id && checkID > 0) {
             // duplicate name
@@ -274,8 +277,7 @@ app.post('/api/userInfoChange', (req, resp) => {
             resp.send(resValue)
         } else {
             // 可以进行修改
-            db(sql_update).then(result => {
-                // console.log(result.affectedRows, '条')
+            db(sql_update, sqlParam).then(result => {
                 if (result.affectedRows === 1) {
                     // success
                     resValue.result = 0;
@@ -351,8 +353,8 @@ app.get('/api/getAvatar/:id', (req, resp) => {
 
 // 由name获取头像
 app.get('/api/getAvatarByName/:name', (req, resp) => {
-    const sql = `select avatarURL from user_info where user_name = "${req.params.name}";`
-    db(sql).then(res => {
+    const sql = `select avatarURL from user_info where user_name = ?;`
+    db(sql, req.params.name).then(res => {
         let result = JSON.parse(JSON.stringify(res))
         if(result.length === 0) {
             resp.end();
@@ -455,8 +457,8 @@ app.post('/api/favoriteStatus', (req, resp) => {
 
 // 由用户名获取id
 app.get('/api/getIdByName/:name', (req, resp) => {
-    const sql = `select user_id from user_info where user_name = "${req.params.name}";`
-    db(sql).then(res => {
+    const sql = `select user_id from user_info where user_name = ?;`
+    db(sql, req.params.name).then(res => {
         const result = JSON.parse(JSON.stringify(res))
         resp.send(result[0])
     })
@@ -604,12 +606,13 @@ app.get('/api/commentsOfOneArticle/:article_id', (req, resp) => {
 app.post('/api/Comment', (req, resp) => {
     const params = req.body;
     const value = JSON.parse(JSON.stringify(params));
-    // console.log(value)
-    const sql_comment = `insert into comments (publisher_id, article_commented_id, content, create_time, comment_index) values(${value.publisher_id}, ${value.article_commented_id}, "${value.content}", NOW(), ${value.comment_index});`;
-    const sql_reply = `insert into comments (publisher_id, article_commented_id, recipient_id, content, create_time, is_reply, comment_index) values(${value.publisher_id}, ${value.article_commented_id}, ${value.recipient_id}, "${value.content}", NOW(), 1, ${value.comment_index});`;
+    const commentParams = [value.publisher_id, value.article_commented_id, value.content, value.comment_index] 
+    const sql_comment = `insert into comments (publisher_id, article_commented_id, content, create_time, comment_index) values(?, ?, ?, NOW(), ?);`;
+    const replayParams = [value.publisher_id, value.article_commented_id, value.recipient_id, value.content, value.comment_index]
+    const sql_reply = `insert into comments (publisher_id, article_commented_id, recipient_id, content, create_time, is_reply, comment_index) values(?, ?, ?, ?, NOW(), 1, ?);`;
     // 回复
     if (value.is_reply === true) {
-        db(sql_reply).then(res => {
+        db(sql_reply, replayParams).then(res => {
             if (res.affectedRows === 1) {
                 resp.sendStatus(200);
             } else {
@@ -618,7 +621,7 @@ app.post('/api/Comment', (req, resp) => {
         })
     } else {
         // 评论
-        db(sql_comment).then(res => {
+        db(sql_comment, commentParams).then(res => {
             if (res.affectedRows === 1) {
                 resp.sendStatus(200);
             } else {
@@ -737,11 +740,12 @@ app.post('/api/messageReadStatus', (req, resp) => {
 // 新增一条站内信
 app.post('/api/newMessage', (req, resp) => {
     const params = req.body;
-    console.log(params)
+    // console.log(params)
+    const sqlParam = [params.title, params.content]
     const sql = `insert into direct_message(addresser_id, consignee_id, read_status, delivery_time, title, content)
-    values(${params.addresser_id}, ${params.consignee_id}, 0, NOW(), "${params.title}", "${params.content}");`;
-    db(sql).then(res => {
-        console.log(res)
+    values(${params.addresser_id}, ${params.consignee_id}, 0, NOW(), ?, ?);`;
+    db(sql, sqlParam).then(res => {
+        // console.log(res)
         if (res.affectedRows === 1) {
             resp.sendStatus(200);
         } else {
@@ -772,10 +776,7 @@ app.get('/api/favoriteArticle', async (req, resp) => {
     and f.collection_id = ${cid}
     and f.favorite_status = 1
     );`;
-    /*     db(sql).then(res => {
-            resp.send(JSON.parse(JSON.stringify(res)));
-        })
-     */
+
     const tagList = await articleTags();
     db(sql).then(res => {
         const articleList = JSON.parse(JSON.stringify(res));
@@ -795,13 +796,10 @@ app.get('/api/favoriteArticle', async (req, resp) => {
 // 创建新收藏夹，不校验同名收藏夹是否已经存在(收藏夹有唯一编号collection_id)
 app.post('/api/newCollection', (req, resp) => {
     const params = req.body;
-    /* if (params.cname === "默认收藏") {
-        resp.sendStatus(403);
-        return;
-    } */
+    const sqlParam = [params.uid, params.cname, params.cdes]
     const sql = `insert into collection(user_id, collection_name, collection_description) 
-    values(${params.uid}, "${params.cname}","${params.cdes}");`
-    db(sql).then(res => {
+    values(?, ?,?);`
+    db(sql, sqlParam).then(res => {
         if (res.insertId > 0) {
             resp.sendStatus(200);
         } else {
@@ -813,9 +811,10 @@ app.post('/api/newCollection', (req, resp) => {
 // 修改收藏夹信息
 app.post('/api/collectionInfo', (req, resp) => {
     const params = req.body;
-    const sql = `update collection set collection_name="${params.name}", collection_description = "${params.description}"
-    where collection_id = ${params.cid};`
-    db(sql).then(res => {
+    const sqlParam = [params.name, params.description, params.cid]
+    const sql = `update collection set collection_name=?, collection_description = ?
+    where collection_id =?;`
+    db(sql, sqlParam).then(res => {
         resp.end()
     })
 })

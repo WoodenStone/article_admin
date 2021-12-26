@@ -64,7 +64,7 @@ export default {
 }
 .comment-time {
   margin-left: 10px;
-  font-size: 8px;
+  font-size: 0.8rem;
   color: @time-color;
 }
 .floor {
