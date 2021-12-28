@@ -18,11 +18,11 @@
 
 ## 概览
 
-Article Admin 是一个前后端分离的文章/博客管理系统。前端采用Vue2.x全家桶并结合ElementUI，后端使用Node.js的Express框架，数据库为MySQL8.0。包括用户注册登录、文章管理、个人中心、关注、收藏、站内信等多个模块、多种功能。
+Article Admin 是一个前后端分离的文章/博客管理系统。前端采用Vue2.x结合ElementUI，后端使用Node.js的Express框架，数据库为MySQL8.0。包括用户注册登录、文章管理、个人中心、关注、收藏、站内信等多个模块、多种功能。
 
-本项目是学习Vue / MySQL的练习。
+本项目是HITSZ 21秋数据库实验四的作品 && 学习Vue / MySQL的练习。
 
-**访问博客以查看更多细节：[click here!](https://woodenstone.github.io/Projects/article-admin/)**
+**访问[相关博客](https://woodenstone.github.io/Projects/article-admin/)以查看更多细节**
 
 ## 快速开始
 
