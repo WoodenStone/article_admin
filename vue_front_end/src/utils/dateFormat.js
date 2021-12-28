@@ -34,9 +34,5 @@ export function dateFormatSta (dateToBeFormatted) {
   const timeFmt = new Date(
     Date.UTC(dt[0], dt[1] - 1, dt[2], dt[3] || 0, dt[4] || 0, dt[5] || 0, 0)
   )
-  // const isPositiveInteger = Date.now() - timeFmt > 0 ? '前' : '后'
-
-  // const pastSeconds = Math.floor(Math.abs(Date.now() - timeFmt) / 1000)
-
   return timeFmt.toLocaleString()
 }

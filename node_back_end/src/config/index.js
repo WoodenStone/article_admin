@@ -6,6 +6,7 @@ MYSQL_CONFIG = {
     database: 'ArticleAdmin'
 }
 
+
 module.exports = {
     MYSQL_CONFIG
 }

@@ -24,7 +24,7 @@
     <el-container class="statistic" direction="vertical">
       <div class="chart">
         <div>您的创作统计：</div>
-        <div id="main" style="width: 600px;height:400px;"></div>
+        <div id="main"></div>
       </div>
       <div v-if="this.show" class="none-info">
         您还没有创作任何文章哦， 试着<router-link to="table/index"
@@ -55,7 +55,8 @@ export default {
       ptime: [],
       count: [],
       greeting: '',
-      show: false
+      show: false,
+      option: {}
     }
   },
   methods: {
@@ -69,10 +70,13 @@ export default {
       this.$http
         .get(`statistic?date=${day}&week=${week}&uid=${uid}`)
         .then(res => {
-          // console.log(res.data)
+          // console.log(res)
           if (res.data.length > 0) {
+            // 格式化时间
             for (const item of res.data) {
-              item.ptime = dateFormatSta(item.ptime).split(' ')[0]
+              item.ptime = dateFormatSta(item.ptime)
+                .split(' ')[0]
+                .slice(0, -1)
               this.count.push(item.cnt)
               this.ptime.push(item.ptime)
             }
@@ -81,7 +85,7 @@ export default {
             this.show = true
           }
           // set Echart
-          myChart.setOption({
+          /* myChart.setOption({
             title: {
               text: '暂无数据',
               left: 'center',
@@ -102,7 +106,106 @@ export default {
                 type: 'line'
               }
             ]
-          })
+          }) */
+          myChart.setOption(
+            (this.option = {
+              /* title: {
+                text: '创作统计',
+                left: '1%'
+              }, */
+              tooltip: {
+                trigger: 'axis'
+              },
+              grid: {
+                left: '5%',
+                right: '15%',
+                bottom: '10%'
+              },
+              xAxis: {
+                data: this.ptime
+              },
+              yAxis: {},
+              toolbox: {
+                right: 10,
+                feature: {
+                  dataZoom: {
+                    yAxisIndex: 'none'
+                  },
+                  restore: {},
+                  saveAsImage: {}
+                }
+              },
+              dataZoom: [
+                {
+                  startValue: this.ptime[0]
+                },
+                {
+                  type: 'inside'
+                }
+              ],
+              visualMap: {
+                top: 50,
+                right: 10,
+                pieces: [
+                  {
+                    gt: 0,
+                    lte: 2,
+                    color: '#41a273'
+                  },
+                  {
+                    gt: 2,
+                    lte: 5,
+                    color: '#79c0dd'
+                  },
+                  {
+                    gt: 5,
+                    lte: 7,
+                    color: '#ea6667'
+                  },
+                  {
+                    gt: 7,
+                    lte: 10,
+                    color: '#f7c85e'
+                  },
+                  {
+                    gt: 10,
+                    color: '#5a70c4'
+                  }
+                ],
+                outOfRange: {
+                  color: '#9a60b3'
+                }
+              },
+              series: {
+                name: 'writings: ',
+                type: 'line',
+                data: this.count,
+                markLine: {
+                  silent: true,
+                  lineStyle: {
+                    color: '#333'
+                  },
+                  data: [
+                    {
+                      yAxis: 50
+                    },
+                    {
+                      yAxis: 100
+                    },
+                    {
+                      yAxis: 150
+                    },
+                    {
+                      yAxis: 200
+                    },
+                    {
+                      yAxis: 300
+                    }
+                  ]
+                }
+              }
+            })
+          )
         })
         .catch(err => {
           console.log(err)
@@ -150,6 +253,13 @@ export default {
 @card2-bg: #fadfacbf;
 @card3-bg: #bad0d3af;
 @card4-bg: #f5bba8af;
+.welcome-info {
+  margin-left: 3rem;
+}
+#main {
+  width: 45rem;
+  height: 25rem;
+}
 .cards {
   float: left;
   width: 400px;
@@ -165,7 +275,8 @@ export default {
     height: 120px;
     align-items: center;
     justify-content: space-evenly;
-    margin: 10px 0;
+    margin: 1rem 0;
+    margin-left: 3rem;
     cursor: pointer;
     box-shadow: 0 0 0 1px hsla(240, 0%, 100%, 0.8) inset,
       0 0.2em 0.5em rgba(199, 198, 198, 0.795);
@@ -226,7 +337,7 @@ export default {
     }
   }
   i[class*='iconfont'] {
-    font-size: 40px;
+    font-size: 45px;
     color: #151615af;
   }
 }
@@ -236,6 +347,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
   }
 }
 </style>

@@ -9,6 +9,8 @@
       :on-success="handleAvatarSuccess"
       :before-upload="beforeAvatarUpload"
       :on-error="handleAvatarError"
+      :headers="requestHeader"
+      :with-credentials="true"
     >
       <img v-if="isAvatarExist" :src="avatarUrl" class="avatar" />
       <el-empty v-else :image-size="180" description="上传头像"></el-empty>
@@ -67,6 +69,7 @@
 </template>
 
 <script>
+import { getToken } from '../../utils/auth'
 export default {
   inject: ['reload'],
   data () {
@@ -87,6 +90,9 @@ export default {
         username: JSON.parse(window.localStorage.getItem('user')).user_name,
         password: JSON.parse(window.localStorage.getItem('user')).user_pwd,
         checkPassword: ''
+      },
+      requestHeader: {
+        'aa-token': getToken()
       },
       rules: {
         username: [
@@ -180,11 +186,11 @@ export default {
       this.avatarUrl = URL.createObjectURL(file.raw)
       setTimeout(() => {
         this.update()
-      }, 2000)
+      }, 1000)
       this.$message({
         message: '修改成功',
         type: 'success',
-        duration: '2000'
+        duration: '1000'
       })
     },
     beforeAvatarUpload (file) {
@@ -200,12 +206,24 @@ export default {
       }
       return (isJPG || isPNG) && isLt2M
     },
-    handleAvatarError () {
-      this.$message({
-        message: '修改失败',
-        type: 'error',
-        duration: '2000'
-      })
+    handleAvatarError (error) {
+      if (error.message === '登录超时') {
+        this.$message({
+          message: '登录超时，即将重新跳转至登录界面',
+          type: 'warning',
+          duration: '3000'
+        })
+        this.$store.dispatch('token/resetToken') // must remove token first!!
+        setTimeout(() => {
+          this.$router.push({ path: '/login/login' })
+        }, 3000)
+      } else {
+        this.$message({
+          message: '修改失败，请稍后再试',
+          type: 'error',
+          duration: '2000'
+        })
+      }
     },
     // 获取用户头像
     getAvatar () {

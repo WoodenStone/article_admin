@@ -53,6 +53,7 @@ export default {
   methods: {
     logout () {
       this.$store.commit('setuserInfo', '')
+      this.$store.dispatch('token/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     },
     async fetchInfo () {

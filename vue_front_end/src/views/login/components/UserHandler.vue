@@ -139,12 +139,10 @@ export default {
     gotoRegister () {
       this.isRegistered = false
       this.$router.push('register')
-      // console.log('go to reg')
     },
     gotoLogin () {
       this.isRegistered = true
       this.$router.push('login')
-      // console.log('go to login')
     },
     // 提交表单
     submitForm () {
@@ -153,43 +151,24 @@ export default {
           this.loading = true
           // 登录
           if (this.isRegistered) {
-            this.$http
-              .post('login', this.loginForm)
-              .then((res, err) => {
-                if (!err) {
-                  // console.log(res.data)
-                  if (res.data[1] === true) {
-                    this.$message({
-                      message: '登录成功',
-                      type: 'success',
-                      duration: '2000'
-                    })
-                    // 登录后将用户信息存入localStorage
-                    this.$store.commit('setuserInfo', res.data[0])
-                    const that = this
-                    setTimeout(function () {
-                      that.$router.push({ path: that.redirect || '/' })
-                    }, 1000)
-                    this.loading = false
-                  } else {
-                    this.$message({
-                      message: '请输入正确的用户名和密码',
-                      type: 'error',
-                      duration: '2000'
-                    })
-                    this.loading = false
-                  }
-                } else {
-                  console.log(err)
-                }
+            this.$store
+              .dispatch('token/login', this.loginForm)
+              .then(res => {
+                this.$store.commit('setuserInfo', res)
               })
-              .catch(e => {
-                console.log(e)
+              .then(() => {
+                // console.log(this.redirect)
+                this.$router.push({ path: this.redirect || '/' })
+                this.loading = false
+              })
+              .catch(error => {
+                this.loading = false
+                console.log(error)
               })
           } else {
             // 注册
             this.$http
-              .post('register', this.loginForm)
+              .post('Register', this.loginForm)
               .then((res, err) => {
                 if (!err) {
                   if (res.data === true) {

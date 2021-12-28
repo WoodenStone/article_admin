@@ -8,10 +8,15 @@ const multer = require('multer')
 
 let fs = require('fs')
 
-app.use(require('cors')())
+app.use(require('cors')(
+    {
+        credentials: true,
+        origin: true
+    }
+))
 
 const { db } = require('./src/sql/db')
-const { FILE } = require('dns')
+
 
 app.use('/public', express.static('public'));
 
@@ -19,9 +24,39 @@ app.use('/public', express.static('public'));
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
+const token = require('./src/auth/token')
+
 app.get('/', (req, resp) => {
     resp.send('index')
 })
+
+const whiteList = ['/api/User', '/api/Login', '/api/Register']
+
+// 校验token
+app.use((req, res, next) => {
+    const location = req.url
+    if (whiteList.indexOf(location) > -1) {
+        return next()
+    } else {
+        const authorization = req.headers['aa-token']
+        if (typeof authorization === 'undefined') {
+            return res.status(402).send('未检测到登录信息')
+        } else {
+            token.verToken(authorization).then(data => {
+                req.data = data;
+                return next()
+            }).catch(error => {
+                if(error.message === 'jwt expired') {
+                    return res.status(401).send('登录超时')
+                } else {
+                    return res.status(402).send('未检测到登录信息')
+                }
+            })
+        }
+    }
+})
+
+
 
 // 获取文章标签列表
 const articleTags = async (sql_tag = `select atg.article_id, t.tag_id, t.tag_name from article_tag atg, tag t
@@ -132,8 +167,8 @@ const findTag = async (tag) => {
 // 添加文章
 app.post('/api/addArticle', async (req, resp) => {
     const params = req.body;
-    const sqlParam = [params.title, params.author_id, params.content , params.rawcontent ] 
-    const sql_insert =  `insert into article(title, author_id, content, rawcontent, publish_time) values (?, ?,?, ? ,NOW() );`
+    const sqlParam = [params.title, params.author_id, params.content, params.rawcontent]
+    const sql_insert = `insert into article(title, author_id, content, rawcontent, publish_time) values (?, ?,?, ? ,NOW() );`
     // console.log(sql);
     const tagID = [];
     for (const tag of params.tagName) {
@@ -212,7 +247,7 @@ app.post('/api/searchName', (req, resp) => {
 })
 
 // 用户登录
-app.post('/api/login', (req, resp) => {
+/* app.post('/api/login', (req, resp) => {
     const params = req.body;
     let sqlParam = params.username
     const sql = `select * from user_info where user_name = ?;`;
@@ -234,10 +269,10 @@ app.post('/api/login', (req, resp) => {
             }
         }
     )
-})
+}) */
 
 // 用户注册
-app.post('/api/register', (req, resp) => {
+app.post('/api/Register', (req, resp) => {
     const params = req.body;
     const findParams = params.username
     const addParams = [params.username, params.password]
@@ -318,7 +353,7 @@ app.post('/api/uploadAvatar', upload.single('avatar'), (req, resp) => {
 const uploadImg = multer({
     dest: 'public'
 })
-app.post('/api/imgUpload', uploadImg.single('image'),(req, resp) => {
+app.post('/api/imgUpload', uploadImg.single('image'), (req, resp) => {
     // console.log(req, 'req');
     let file = req.file
     console.log(file.filename)
@@ -337,9 +372,9 @@ app.get('/api/getAvatar/:id', (req, resp) => {
 
         let result = JSON.parse(JSON.stringify(res))
         // console.log(result[0].avatarURL)
-        if(result.length === 0) {
+        if (result.length === 0) {
             resp.end()
-        }else {
+        } else {
             if (result[0].avatarURL != null) {
                 // resp.attachment(process.cwd() +'/'+ result[0].avatarURL)
                 resp.type('image/jpeg')
@@ -356,9 +391,9 @@ app.get('/api/getAvatarByName/:name', (req, resp) => {
     const sql = `select avatarURL from user_info where user_name = ?;`
     db(sql, req.params.name).then(res => {
         let result = JSON.parse(JSON.stringify(res))
-        if(result.length === 0) {
+        if (result.length === 0) {
             resp.end();
-        }else {
+        } else {
             if (result[0].avatarURL != null) {
                 resp.type('image/jpeg')
                 resp.sendFile(process.cwd() + '/' + result[0].avatarURL)
@@ -606,7 +641,7 @@ app.get('/api/commentsOfOneArticle/:article_id', (req, resp) => {
 app.post('/api/Comment', (req, resp) => {
     const params = req.body;
     const value = JSON.parse(JSON.stringify(params));
-    const commentParams = [value.publisher_id, value.article_commented_id, value.content, value.comment_index] 
+    const commentParams = [value.publisher_id, value.article_commented_id, value.content, value.comment_index]
     const sql_comment = `insert into comments (publisher_id, article_commented_id, content, create_time, comment_index) values(?, ?, ?, NOW(), ?);`;
     const replayParams = [value.publisher_id, value.article_commented_id, value.recipient_id, value.content, value.comment_index]
     const sql_reply = `insert into comments (publisher_id, article_commented_id, recipient_id, content, create_time, is_reply, comment_index) values(?, ?, ?, ?, NOW(), 1, ?);`;
@@ -821,7 +856,7 @@ app.post('/api/collectionInfo', (req, resp) => {
 
 // 删除收藏夹
 app.delete('/api/collection', (req, resp) => {
-    const cid  = req.body.cid;
+    const cid = req.body.cid;
     const sql = `delete from collection where collection_id = ${cid};`
     db(sql).then(res => {
         resp.end()
@@ -890,14 +925,12 @@ app.delete('/api/message', (req, resp) => {
 app.get('/api/statistic', (req, resp) => {
     // const d = req.query.date.split('+');
     const day = req.query.date, week = req.query.week, uid = req.query.uid;
-    console.log(day,week,uid)
     const sql = `select date(publish_time) as ptime, count(*) as cnt from article 
     where author_id = ${uid}
     AND unix_timestamp(publish_time) <= (unix_timestamp("${day}") + 86400)
     group by date(publish_time);`
     db(sql).then(res => {
         let result = JSON.parse(JSON.stringify(res));
-        // console.log(result)
         resp.send(result)
     })
 })
@@ -936,6 +969,36 @@ app.get('/api/ArticleCommentsDesc', (req, resp) => {
         resp.send(result)
     })
 })
+
+app.post('/api/Login', (req, resp) => {
+    const params = req.body;
+    let sqlParam = params.username
+    const sql = `select * from user_info where user_name = ?;`;
+    db(sql, sqlParam).then(
+        res => {
+            if (res.length) {
+                let value = JSON.parse(JSON.stringify(res));
+                let pwd = value[0].user_pwd;
+                if (pwd === params.password) {
+                    token.setToken(params.username).then(token => {
+                        resp.status(200).send({
+                            token,
+                            userInfo: value[0]
+                        })
+                    })
+                    // resp.send(200)
+                } else {
+                    resp.writeHead(801, 'Current password does not match', { 'content-type': 'text/plain' });
+                    resp.end()
+                }
+            } else {
+                resp.writeHead(801, 'Current password does not match', { 'content-type': 'text/plain' });
+                resp.end()
+            }
+        }
+    )
+})
+
 
 app.listen(port, () => {
     console.log(`app listening at http://localhost:${port}`)
