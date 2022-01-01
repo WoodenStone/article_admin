@@ -21,6 +21,10 @@
         <span>发布于 {{ articleDetail.publish_time }}</span>
         &nbsp;
         <span>最后更新于 {{ articleDetail.update_time }}</span>
+        &nbsp;
+        <el-button @click="downloadMD" type="text" size="mini"
+          >下载本文的markdown文件</el-button
+        >
       </div>
       <div class="tags">
         <span
@@ -111,6 +115,10 @@ export default {
     this.fetchStatus()
     this.getComments()
   },
+  mounted () {
+    // document.querySelector()
+    // console.log(props.content)
+  },
   watch: {
     favorite_status: {
       handler (newVal) {
@@ -133,7 +141,6 @@ export default {
         .get(`articleDetail?aid=${articleID}`)
         .then((res, err) => {
           if (!err) {
-            // console.log(res.data)
             this.articleDetail = res.data
             this.articleDetail.publish_time = dateFormat(res.data.publish_time)
             this.articleDetail.update_time = dateFormat(res.data.update_time)
@@ -226,6 +233,27 @@ export default {
     },
     changeFavorStatus (status) {
       this.favorite_status = status === true ? 1 : 0
+    },
+    fileDownload (content, name = '下载文件', suffix = 'md') {
+      // 添加字节序标识，避免乱码
+      const data = `\uFEFF${content}`
+      const blob = new Blob([data], { type: 'text/markdown,charset=UTF-8' })
+      // 创建链接，设置download和href属性，即可下载
+      const downloadElement = document.createElement('a')
+      const href = window.URL.createObjectURL(blob)
+      downloadElement.href = href
+      downloadElement.download = `${name}.${suffix}`
+      document.body.appendChild(downloadElement)
+      downloadElement.click()
+      document.body.removeChild(downloadElement)
+      window.URL.revokeObjectURL(href)
+    },
+    downloadMD () {
+      const downloadContent = `# ${this.articleDetail.title}\n作者：${this.articleDetail.author}\n> 未经作者许可不得擅自使用 来源: ${window.location.href}\n${this.articleDetail.content}`
+      this.fileDownload(
+        downloadContent,
+        this.articleDetail.title.concat(`-${this.articleDetail.author}`)
+      )
     }
   }
 }
