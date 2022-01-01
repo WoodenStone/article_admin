@@ -68,6 +68,7 @@
           </div>
         </el-card>
       </el-col>
+      <slot></slot>
     </el-row>
   </div>
 </template>
@@ -84,14 +85,6 @@ export default {
       type: Array,
       default: () => []
     }
-  },
-  data () {
-    return {
-      receiveMessages: []
-    }
-  },
-  created () {
-    // console.log(this.receiveList)
   },
   methods: {
     checkmsgReceived (id) {

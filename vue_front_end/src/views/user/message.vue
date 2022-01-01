@@ -3,20 +3,39 @@
     <el-tabs v-model="activeName" :stretch="true">
       <el-tab-pane label="收件箱" name="receive-box" class="receive-box">
         <message-box-received
-          :receiveList="receiveData"
-          v-if="receiveData.length > 0"
+          :receiveList="currentReceiveMessage"
+          v-if="currentReceiveMessage.length > 0"
           @msgReceived="handleCheck"
           @writeBack="writeBack"
           @deleteMsg="deleteMsg"
-        ></message-box-received>
+        >
+          <slot>
+            <el-pagination
+              layout="prev, pager, next"
+              :page-size="pageSize"
+              :total="receiveMessageNumber"
+              @current-change="handleReceiveCurrentChange"
+            >
+            </el-pagination>
+          </slot>
+        </message-box-received>
       </el-tab-pane>
       <el-tab-pane label="发件箱" name="send-box">
         <message-box-sent
-          :sentList="sendData"
-          v-if="sendData.length > 0"
+          :sentList="currentSentMessage"
+          v-if="currentSentMessage.length > 0"
           @msgSent="handleCheck"
           @deleteMsg="deleteMsg"
         >
+          <slot>
+            <el-pagination
+              layout="prev, pager, next"
+              :page-size="pageSize"
+              :total="sentMessageNumber"
+              @current-change="handleSentCurrentChange"
+            >
+            </el-pagination>
+          </slot>
         </message-box-sent>
       </el-tab-pane>
       <el-tab-pane label="写站内信" name="write-box">
@@ -54,8 +73,11 @@ export default {
     MessageEditor
   },
   async created () {
-    await this.getReceivedMessages()
-    await this.getSentMessages()
+    // console.log(this.pageSize)
+    this.getMessageReceivedNumber()
+    await this.getCurrentReceivedMessages()
+    this.getMessageSentNumber()
+    await this.getCurrentSentMessages()
   },
   inject: ['reload'],
   data () {
@@ -67,19 +89,70 @@ export default {
       messageToCheck: {},
       isReceived: true,
       isReply: false,
-      messageToReply: {}
+      messageToReply: {},
+      pageSize: 8,
+      receiveMessageNumber: 0,
+      currentReceivePageNum: 0,
+      currentReceiveMessageOffset: 0,
+      currentReceiveMessage: [],
+      sentMessageNumber: 0,
+      currentSentPageNum: 0,
+      currentSentMessageOffset: 0,
+      currentSentMessage: []
     }
   },
   methods: {
-    // 获取全部的收件信息并格式化时间
-    async getReceivedMessages () {
+    // 获取收到的站内信总数
+    getMessageReceivedNumber () {
       const userID = JSON.parse(window.localStorage.getItem('user')).user_id
-      const res = await this.$http.get(`directMessage?userID=${userID}`)
+      this.$http.get(`MessageNum?userID=${userID}`).then(res => {
+        this.receiveMessageNumber = res.data[0].total
+      })
+    },
+    // 获取发出的站内信总数
+    getMessageSentNumber () {
+      const userID = JSON.parse(window.localStorage.getItem('user')).user_id
+      this.$http.get(`MessageOutNum?userID=${userID}`).then(res => {
+        this.sentMessageNumber = res.data[0].total
+      })
+    },
+    // 分页获取收到的信息
+    async getCurrentReceivedMessages () {
+      const userID = JSON.parse(window.localStorage.getItem('user')).user_id
+      const res = await this.$http.get(
+        `currentDirectMessage?userID=${userID}&pageSize=${this.pageSize}&offset=${this.currentReceiveMessageOffset}`
+      )
       const result = res.data
       result.forEach(item => {
         item.delivery_time = dateFormat(item.delivery_time)
       })
-      this.receiveData = result
+      this.currentReceiveMessage = result
+    },
+    // 分页获取发出的信息
+    async getCurrentSentMessages () {
+      const userID = JSON.parse(window.localStorage.getItem('user')).user_id
+      const res = await this.$http.get(
+        `currentDirectMessage?userID=${userID}&pageSize=${this.pageSize}&offset=${this.currentSentMessageOffset}`
+      )
+      const result = res.data
+      result.forEach(item => {
+        item.delivery_time = dateFormat(item.delivery_time)
+      })
+      this.currentSentMessage = result
+    },
+
+    // 收件箱页面变化
+    handleReceiveCurrentChange (newPage) {
+      // console.log(newPage)
+      this.currentReceiveMessageOffset = (newPage - 1) * this.pageSize
+      this.currentReceivePageNum = newPage - 1
+      this.getCurrentReceivedMessages()
+    },
+    // 发件箱页面变化
+    handleSentCurrentChange (newPage) {
+      this.currentSentMessageOffset = (newPage - 1) * this.pageSize
+      this.currentSentPageNum = newPage - 1
+      this.getCurrentSentMessages()
     },
     // 获取发件信息
     async getSentMessages () {
@@ -116,8 +189,8 @@ export default {
       this.isReceived = data.isReceived
       this.drawerStatus = data.drawerStatus
       const msg = this.isReceived
-        ? this.findKey(this.receiveData, data.msgID)
-        : this.findKey(this.sendData, data.msgID)
+        ? this.findKey(this.currentReceiveMessage, data.msgID)
+        : this.findKey(this.currentSentMessage, data.msgID)
       this.messageToCheck = msg
     },
     // 变更已读状态

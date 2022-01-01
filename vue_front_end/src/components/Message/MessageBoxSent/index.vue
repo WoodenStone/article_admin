@@ -56,6 +56,7 @@
           </div>
         </el-card>
       </el-col>
+      <slot></slot>
     </el-row>
   </div>
 </template>

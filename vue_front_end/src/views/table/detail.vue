@@ -115,15 +115,10 @@ export default {
     this.fetchStatus()
     this.getComments()
   },
-  mounted () {
-    // document.querySelector()
-    // console.log(props.content)
-  },
   watch: {
     favorite_status: {
       handler (newVal) {
         this.favorite_status = newVal
-        // console.log(newVal)
       },
       immediate: true
     }

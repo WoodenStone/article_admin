@@ -70,7 +70,7 @@ where atg.tag_id = t.tag_id;`) => {
 app.get('/api/Article', async (req, resp) => {
     const tagList = await articleTags();
     // console.log(tagList)
-    const sql = `select a.id, a.author_id, a.title, a.content, a.publish_time, a.update_time, u.user_name as author
+    const sql = `select a.id, a.author_id, a.title, a.publish_time, a.update_time, u.user_name as author
     from article a left join user_info u
     on a.author_id = u.user_id;`;
     await db(sql).then(res => {
@@ -334,15 +334,16 @@ const upload = multer({
 app.post('/api/uploadAvatar', upload.single('avatar'), (req, resp) => {
     // console.log(req.file)
     let file = req.file
+    let savingName = file.filename + new Date().getTime()
     let rawSrc = 'upload/UserAvatar/' + file.filename;
-    let realSrc = 'upload/UserAvatar/' + file.originalname;
+    let realSrc = 'upload/UserAvatar/' + savingName
     fs.renameSync(rawSrc, realSrc)
     let params = req.body
     // console.log(params)
-    const sql = `update user_info set avatarURL = "${realSrc}" where user_id = ${params.id};`
-    db(sql).then(result => {
+    const sql = `update user_info set avatarURL =? where user_id = ?;`
+    db(sql, [realSrc, params.id]).then(result => {
         if (result.affectedRows === 1) {
-            resp.sendFile(process.cwd() + '/upload/UserAvatar/' + file.originalname)
+            resp.sendFile(process.cwd() + '/upload/UserAvatar/' + savingName)
         } else {
             resp.send('Unknown error.')
         }
@@ -356,11 +357,14 @@ const uploadImg = multer({
 app.post('/api/imgUpload', uploadImg.single('image'), (req, resp) => {
     // console.log(req, 'req');
     let file = req.file
-    console.log(file.filename)
+    console.log(file)
+    let mimeType = file.mimetype.split('/')[1]
+    let savingName = file.originalname.split('.')[0] + new Date().getTime() + '.' + mimeType
+    // console.log(mimeType)
     let rawSrc = 'public/' + file.filename;
-    let realSrc = 'public/' + file.originalname;
+    let realSrc = 'public/' + savingName
     fs.renameSync(rawSrc, realSrc);
-    resp.send('http://127.0.0.1:3001/public/' + file.originalname)
+    resp.send('http://127.0.0.1:3001/public/' +savingName)
 })
 
 // 由ID获取头像
@@ -731,27 +735,52 @@ app.get('/api/CommentsReceived', (req, resp) => {
     })
 })
 
-// 获取某用户收到的站内信
-app.get('/api/directMessage', (req, resp) => {
+// 获取某用户收到的站内信总数
+app.get('/api/MessageNum', (req, resp) => {
     const uid = req.query.userID;
-    const sql = `select d.message_id, d.addresser_id, d.read_status, d.delivery_time, d.content, d.title, u.user_name as addresser_name from direct_message d, user_info u
-    where d.consignee_id = ${uid}
+    const sql =`select count(*) as total
+	from direct_message d, user_info u
+    where d.consignee_id = ?
     and d.addresser_id = u.user_id;`
-    db(sql).then(res => {
-        const result = JSON.parse(JSON.stringify(res));
-        resp.send(result.reverse());
+    db(sql, [uid]).then(res => {
+        resp.send(JSON.parse(JSON.stringify(res)))
     })
 })
 
-// 获取某用户发出的站内信
-app.get('/api/directMessageOut', (req, resp) => {
+// 获取某用户发出的站内信总数
+app.get('/api/MessageOutNum', (req, resp) => {
+    const uid = req.query.userID;
+    const sql =`select count(*) as total
+	from direct_message d, user_info u
+    where d.addresser_id = ?
+    and d.addresser_id = u.user_id;`
+    db(sql, [uid]).then(res => {
+        resp.send(JSON.parse(JSON.stringify(res)))
+    })
+})
+
+// 分页查询某用户收到的站内信
+app.get('/api/currentDirectMessage', (req, resp) => {    
+    const sql = `select d.message_id, d.addresser_id, d.read_status, d.delivery_time, d.content, d.title, u.user_name as addresser_name 
+	from direct_message d, user_info u
+    where d.consignee_id = ${req.query.userID}
+    and d.addresser_id = u.user_id order by message_id desc limit ${req.query.pageSize} offset ${req.query.offset};`
+    console.log(sql)
+    db(sql).then(res => {
+        const result = JSON.parse(JSON.stringify(res));
+        resp.send(result);
+    })
+})
+
+// 分页查询某用户发出的站内信
+app.get('/api/currentMessageOut', (req, resp) => {
     const uid = req.query.userID;
     const sql = `select d.message_id, d.addresser_id, d.read_status, d.delivery_time, d.content, d.title, u.user_name as consignee_name from direct_message d, user_info u
     where d.addresser_id = ${uid}
-    and d.consignee_id = u.user_id;`
+    and d.consignee_id = u.user_id order by message_id desc limit ${req.query.pageSize} offset ${req.query.offset};`
     db(sql).then(res => {
         const result = JSON.parse(JSON.stringify(res));
-        resp.send(result.reverse());
+        resp.send(result);
     })
 })
 

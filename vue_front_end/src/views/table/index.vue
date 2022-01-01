@@ -2,7 +2,7 @@
  * @author: WoodenStone
  * @lastEditors: WoodenStone
  * @Date: 2021-10-16 13:26:08
- * @LastEditTime: 2021-10-25 16:28:04
+ * @LastEditTime: 2022-01-01 19:33:23
 -->
 <template>
   <article-list
@@ -38,17 +38,12 @@ export default {
       this.$http
         .get('Article')
         .then(res => {
-          // console.log(res.data)
           for (const d of res.data) {
             const publishTime = dateFormat(d.publish_time)
             const updateTime = dateFormat(d.update_time)
-            if (d.content.length > 30) {
-              d.content = d.content.slice(0, 30).concat('......')
-            }
             this.articles.push({ ...d, publishTime, updateTime })
           }
           this.articles.reverse()
-          // console.log(this.articles, '文章')
         })
         .catch(e => {
           console.log(e)

@@ -4,11 +4,6 @@
       <el-button size="small" type="primary" @click="addArticle"
         >新增一篇</el-button
       >
-      <!--
-      <el-button size="small" @click="getAllArticle" class="button-update"
-        >更新列表</el-button
-      >-->
-
       <el-select
         v-model="sortOption"
         placeholder="排序方式"
@@ -36,7 +31,7 @@
     </el-container>
     <div class="article-list-wrapper">
       <el-table
-        :data="articles"
+        :data="currentPageArticles"
         style="width: 100%"
         class="article-table fade-in"
       >
@@ -77,9 +72,6 @@
             </span>
           </template>
         </el-table-column>
-        <!--
-        <el-table-column v-if="showContent" prop="content" label="预览">
-        </el-table-column> -->
         <el-table-column fixed="right" label="操作" width="130" key="operation">
           <template slot-scope="scope">
             <el-button @click="handleCheck(scope.row)" type="text" size="small"
@@ -118,6 +110,15 @@
       v-if="userInfo.aid > 0"
     >
     </collection>
+    <el-pagination
+      class="pagination"
+      layout="prev, pager, next"
+      :total="this.articles.length"
+      :page-size="this.pageSize"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    >
+    </el-pagination>
   </el-container>
 </template>
 
@@ -148,6 +149,9 @@ export default {
         uid: JSON.parse(window.localStorage.getItem('user')).user_id,
         aid: 0
       },
+      currentPageArticles: [],
+      currentPage: 1,
+      pageSize: 15,
       options: [
         {
           value: 0,
@@ -171,20 +175,24 @@ export default {
   },
   async created () {
     if (!this.personal) {
-      // this.getAllArticle()
-      // console.log(this.articleLists[0], '列表')
       this.articles = await this.articleLists
       // console.log(this.articles)
+      this.currentPageData()
     } else {
       await this.getPersonalArticle()
     }
     this.userID = JSON.parse(window.localStorage.getItem('user')).user_id
-    // console.log(this.articles)
   },
   methods: {
+    // 当前页更新
+    currentPageData () {
+      this.currentPageArticles = this.articles.slice(
+        (this.currentPage - 1) * this.pageSize,
+        this.currentPage * this.pageSize
+      )
+    },
     // 查看文章
     handleCheck (row) {
-      // console.log(row.id)
       this.$router.push({
         path: '/table/detail',
         query: { id: row.id, isEdit: false }
@@ -257,15 +265,10 @@ export default {
           for (const d of res.data) {
             const publishTime = dateFormat(d.publish_time)
             const updateTime = dateFormat(d.update_time)
-            if (d.content.length > 30) {
-              d.content = d.content.slice(0, 30).concat('......')
-              // d.content
-            }
             // d.tagName = d.tagName.join(' | ')
             this.articles.push({ ...d, publishTime, updateTime })
           }
           this.update()
-          //  this.$message('已更新！')
         })
         .catch(err => {
           console.log(err)
@@ -283,6 +286,7 @@ export default {
             this.articles.push({ ...d, publishTime, updateTime })
           }
           this.articles.reverse()
+          this.currentPageData()
         })
         .catch(e => console.log(e))
     },
@@ -313,24 +317,24 @@ export default {
           let temp = {}
           for (let j = i + 1; j < array.length; j++) {
             if (array[j].id === index[i].id) {
-              // 这里赋值要用$set 否则视图不会更新
+              // 数组非响应式，更新使用$set或者splice，或者手动转响应式
               temp = array[j]
-              // this.articles[j] = this.articles[i]
-              this.$set(array, j, array[i])
-              // this.articles[i] = temp
-              this.$set(array, i, temp)
+              this.articles[j] = this.articles[i]
+              // this.$set(array, j, array[i])
+              this.articles[i] = temp
+              // this.$set(array, i, temp)
             }
           }
         }
       }
+      // 更新当前视图
+      this.currentPageData()
     },
     // 赞数降序
     articleSortThumbup () {
-      // console.log(this.artilces)
       this.$http
         .get('ArticleThumbupDesc')
         .then(res => {
-          // console.log(res)
           const index = res.data
           // 交换排序
           this.interchange(index, this.articles)
@@ -384,7 +388,6 @@ export default {
     },
     // 选中条目可以跳转到详情页
     handleSelect (item) {
-      //   console.log(item)
       if (item.id > 0) {
         this.$router.push({
           path: '/table/detail',
@@ -394,8 +397,15 @@ export default {
     },
     collectionSet (row) {
       this.userInfo.aid = row.id
-      // console.log(this.userInfo.aid, 'aid')
       this.showDialog = !this.showDialog
+    },
+    //
+    handleSizeChange (newSize) {
+      this.pageSize = newSize
+    },
+    handleCurrentChange (newPage) {
+      this.currentPage = newPage
+      this.currentPageData()
     },
     update () {
       this.reload()
@@ -451,5 +461,8 @@ export default {
 }
 .sort-option {
   padding: 0 5px;
+}
+.pagination {
+  align-self: center;
 }
 </style>
