@@ -20,7 +20,7 @@
 
 Article Admin 是一个前后端分离的文章/博客管理系统。前端采用Vue2.x结合ElementUI，后端使用Node.js的Express框架，数据库为MySQL8.0。包括用户注册登录、文章管理、个人中心、关注、收藏、站内信等多个模块、多种功能。
 
-本项目是HITSZ 21秋数据库实验四的作品 && 学习Vue / MySQL的练习。
+本项目是HITSZ数据库实验四的作品 & 学习Vue / MySQL的练习。
 
 **访问[相关博客](https://woodenstone.github.io/Projects/article-admin/)以查看更多细节**
 
@@ -74,7 +74,7 @@ npm run dev
 - 注册
 - 登录 / 注销
 
-- 用户信息更改
+- 用户信息 / 头像更改
 
 - 文章管理
 	- 发布文章
@@ -84,6 +84,7 @@ npm run dev
 	- 点赞
 	- 收藏到特定收藏夹
 	- Markdown编辑器及图片插入
+	- 下载文章Markdown文件
 	- 文章标签
 	- 按特定方式排序（时间倒序、赞数降序、评论数降序、收藏数降序）
 
