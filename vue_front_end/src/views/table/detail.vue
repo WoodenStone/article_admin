@@ -244,7 +244,7 @@ export default {
       window.URL.revokeObjectURL(href)
     },
     downloadMD () {
-      const downloadContent = `# ${this.articleDetail.title}\n作者：${this.articleDetail.author}\n> 未经作者许可不得擅自使用 来源: ${window.location.href}\n${this.articleDetail.content}`
+      const downloadContent = `# ${this.articleDetail.title}\n作者：${this.articleDetail.author}\n> 未经作者许可不得擅自使用 \n来源: ${window.location.href}\n \n ${this.articleDetail.content}\n`
       this.fileDownload(
         downloadContent,
         this.articleDetail.title.concat(`-${this.articleDetail.author}`)

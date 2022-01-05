@@ -765,7 +765,7 @@ app.get('/api/currentDirectMessage', (req, resp) => {
 	from direct_message d, user_info u
     where d.consignee_id = ${req.query.userID}
     and d.addresser_id = u.user_id order by message_id desc limit ${req.query.pageSize} offset ${req.query.offset};`
-    console.log(sql)
+    // console.log(sql)
     db(sql).then(res => {
         const result = JSON.parse(JSON.stringify(res));
         resp.send(result);

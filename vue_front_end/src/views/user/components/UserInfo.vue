@@ -333,12 +333,12 @@ export default {
       }, 500)
     },
     // 关注或取关
-    changeFollowStatus () {
+    changeFollowStatus (id, statusSet) {
       const myID = JSON.parse(window.localStorage.getItem('user')).user_id
       const value = {
         uidFrom: myID,
-        uidTo: this.userID,
-        status: this.isFollowed
+        uidTo: this.userID === myID ? id : this.userID,
+        status: this.userID === myID ? statusSet : this.isFollowed
       }
       this.$http.post('followStatusChange', value).then((res, err) => {
         if (!err) {
