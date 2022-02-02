@@ -132,7 +132,7 @@ export default {
     async getCurrentSentMessages () {
       const userID = JSON.parse(window.localStorage.getItem('user')).user_id
       const res = await this.$http.get(
-        `currentDirectMessage?userID=${userID}&pageSize=${this.pageSize}&offset=${this.currentSentMessageOffset}`
+        `currentMessageOut?userID=${userID}&pageSize=${this.pageSize}&offset=${this.currentSentMessageOffset}`
       )
       const result = res.data
       result.forEach(item => {

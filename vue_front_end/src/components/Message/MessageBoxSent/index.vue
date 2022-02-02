@@ -75,9 +75,6 @@ export default {
       receiveMessages: []
     }
   },
-  created () {
-    // console.log(this.sentList)
-  },
   methods: {
     checkmsgSent (id) {
       const value = {
