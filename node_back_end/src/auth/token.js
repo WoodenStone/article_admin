@@ -1,23 +1,22 @@
 const jwt = require("jsonwebtoken")
-const signKey = 'ewfes_fvsdas_wfyhs_kder'
-const JWT_EXPIRES = 60 * 60 * 24 * 7
+const { signKey, expiresIn } = require('../../config').server.jwt
 
-exports.setToken = (username) => {
+exports.setToken = async (username) => {
     return new Promise((resolve, reject) => {
         const token = jwt.sign({
             username,
             site: 'article_admin'
         }, signKey, {
-            expiresIn: JWT_EXPIRES
+            expiresIn: expiresIn
         })
         resolve(token)
     })
 }
 
-exports.verToken = (token) => {
+exports.verifyToken = (token) => {
     return new Promise((resolve, reject) => {
         jwt.verify(token, signKey, (err, res) => {
-            if(err) {
+            if (err) {
                 reject(err)
             } else {
                 resolve(res)

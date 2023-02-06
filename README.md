@@ -22,7 +22,7 @@ Article Admin 是一个前后端分离的文章/博客管理系统。前端采�
 
 本项目是HITSZ数据库实验四的作品 & 学习Vue / MySQL的练习。
 
-**访问[相关博客](https://woodenstone.github.io/Projects/article-admin/)以查看更多细节**
+**[相关博客](https://woodenstone.github.io/Projects/article-admin/)**
 
 ## 快速开始
 
@@ -41,13 +41,17 @@ git clone https://github.com/WoodenStone/article_admin.git
 #### 后端
 
 ```sh
-# 进入项目目录
 cd article_admin/node_back_end
 
 # 安装依赖
 npm install
+```
 
-# 启动项目
+参考 `config.example.js` 新建 `config.development.js`，修改数据库名、用户名、密码。
+
+启动项目：
+
+```sh
 node app.js
 ```
 
@@ -56,7 +60,6 @@ node app.js
 #### 前端
 
 ```sh
-# 进入项目目录
 cd article_admin/vue_front_end
 
 # 安装依赖

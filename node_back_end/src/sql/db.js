@@ -1,32 +1,25 @@
-const mysql = require('mysql');
-
-// database数据库名
-const config = {
-    database: 'ArticleAdmin',
-    user: 'root',
-    password: '123456'
-}
+const mysql = require('mysql')
+const config = require('../../config').db
 
 // sqlParams可以为[], {}, [{}, id]
 exports.db = (sql, sqlParams) => {
-    sqlParams = sqlParams || [];
+    sqlParams = sqlParams || []
     return new Promise((resolve, reject) => {
         // 创建连接池
-        const pool = mysql.createPool(config);
+        const pool = mysql.createPool(config)
         pool.getConnection((err, conn) => {
-            if(!err) {
+            if (!err) {
                 conn.query(sql, sqlParams, (e, results) => {
-                    if(!e) {
-                        console.log(results);
-                        resolve(results);
-                        conn.destroy();
+                    if (!e) {
+                        resolve(results)
+                        conn.destroy()
                     } else {
-                        console.log("sql-err", e);
-                        reject(e);
+                        console.log("sql-err", e)
+                        reject(e)
                     }
                 })
-            } else  {
-                console.log('connection-err', err);
+            } else {
+                console.log('connection-err', err)
             }
         })
     })
